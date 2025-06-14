@@ -8,13 +8,14 @@
 #include "No.h"
 #include <iostream>
 #include <vector>
+#include <string>
 
 
 using namespace std;
 class Grafo {
 public:
-    Grafo(bool direcionado, bool ponderadoAresta, bool ponderadoVertice,
-    char vertices[][2], char arestas[][3]);
+    Grafo(bool direcionado = false, bool ponderadoAresta = false, bool ponderadoVertice = false,
+        vector<string> vertices, vector<string> arestas);
     ~Grafo();
 
     vector<char> fecho_transitivo_direto(char id_no); // a

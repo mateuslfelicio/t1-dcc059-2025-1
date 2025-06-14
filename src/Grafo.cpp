@@ -1,16 +1,66 @@
 #include "Grafo.h"
 
+using namespace std;
 
-Grafo::Grafo(bool direcionado, bool ponderadoAresta, bool ponderadoVertice, char vertices[][2], char arestas[][3]) {
+
+/***
+ * @brief Construtor da classe Grafo
+ * @param direcionado Indica se o grafo é direcionado
+ * @param ponderadoAresta Indica se as arestas são ponderadas
+ * @param ponderadoVertice Indica se os vértices são ponderados
+ * @param vertices Vetor de strings representando os vértices, onde cada string é composta por um caractere seguido de um número (se ponderado)
+ * @param arestas Vetor de strings representando as arestas, onde cada string é composta por dois caracteres (vértices) e um número (se ponderado)
+ */
+Grafo::Grafo(bool direcionado, bool ponderadoAresta, bool ponderadoVertice, vector<string> vertices, vector<string> arestas) {
     int ordem = 0;
     in_direcionado = direcionado;
     in_ponderado_aresta = ponderadoAresta;
     in_ponderado_vertice = ponderadoVertice;
+    for(string vertice : vertices) {
+        No *no = new No(vertice[0], (in_ponderado_vertice ? stoi(vertice.substr(1)) : 0));
+        lista_adj.push_back(no);
+        ordem++;
+    }
 
+    for(string aresta: arestas){
+        char id_no_origem = aresta[0];
+        char id_no_destino = aresta[1];
+        int peso = (in_ponderado_aresta ? stoi(aresta.substr(2)) : 0);
 
+        No *no_origem = nullptr;
+        No *no_destino = nullptr;
+
+        for(No *no : lista_adj) {
+            if(no->id == id_no_origem) {
+                no_origem = no;
+            } else if(no->id == id_no_destino) {
+                no_destino = no;
+            }
+        }
+
+        if(no_origem && no_destino) {
+            Aresta *aresta_obj = new Aresta(id_no_destino, peso);
+            no_origem->arestas.push_back(aresta_obj);
+            if(!direcionado) {
+                Aresta *aresta_obj_inversa = new Aresta(id_no_origem, peso);
+                no_destino->arestas.push_back(aresta_obj_inversa);
+            }
+        }
+    }
 }
 
+/***
+ * @brief Destrutor da classe Grafo
+ */
 Grafo::~Grafo() {
+    for(No *no : lista_adj) {
+        delete no;
+    }
+    lista_adj.clear();
+    ordem = 0;
+    in_direcionado = false;
+    in_ponderado_aresta = false;
+    in_ponderado_vertice = false;   
 }
 
 vector<char> Grafo::fecho_transitivo_direto(char id_no) {
