@@ -1,7 +1,13 @@
 #include "Grafo.h"
 
 
-Grafo::Grafo() {
+Grafo::Grafo(bool direcionado, bool ponderadoAresta, bool ponderadoVertice, char vertices[][2], char arestas[][3]) {
+    int ordem = 0;
+    in_direcionado = direcionado;
+    in_ponderado_aresta = ponderadoAresta;
+    in_ponderado_vertice = ponderadoVertice;
+
+
 }
 
 Grafo::~Grafo() {
