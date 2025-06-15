@@ -14,10 +14,10 @@
 using namespace std;
 class Grafo {
 public:
-    Grafo(bool direcionado = false, bool ponderadoAresta = false, bool ponderadoVertice = false,
-        vector<string> vertices, vector<string> arestas);
+    Grafo(bool direcionado = false, bool ponderadoAresta = false, bool ponderadoVertice = false, vector<string> vertices = {}, vector<string> arestas = {});
     ~Grafo();
 
+    void print();
     vector<char> fecho_transitivo_direto(char id_no); // a
     vector<char> fecho_transitivo_indireto(char id_no); // b
     vector<char> caminho_minimo_dijkstra(char id_no_a, char id_no_b); // c

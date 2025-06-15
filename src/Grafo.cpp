@@ -63,6 +63,30 @@ Grafo::~Grafo() {
     in_ponderado_vertice = false;   
 }
 
+/***
+ * @brief Imprime o grafo na forma de sua lista de adjacência
+ */
+void Grafo::print(){
+    if(lista_adj.empty()) {
+        cout << "Grafo vazio." << endl;
+        return;
+    }
+    for(No *no : lista_adj) {
+        cout << no->id;
+        if(in_ponderado_vertice) {
+            cout << "(" << no->peso << ")";
+        }
+        for(Aresta *aresta : no->arestas) {
+            cout << " -> ";
+            cout << aresta->id_no_alvo;
+            if(in_ponderado_aresta) {
+                cout << "(" << aresta->peso << ")";
+            }
+        }
+        cout << endl;
+    }
+}
+
 vector<char> Grafo::fecho_transitivo_direto(char id_no) {
     cout<<"Metodo nao implementado"<<endl;
     return {};
