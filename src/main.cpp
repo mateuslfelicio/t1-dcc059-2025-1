@@ -3,6 +3,17 @@
 #include "Gerenciador.h"
 #include <vector>
 #include <string>
+#include <algorithm>
+
+string remove_espacos(const string& s) {
+    string res = s;
+    size_t pos = res.find(' ');
+    while (pos != string::npos) {
+        res.replace(pos, 1, "");
+        pos = res.find(' ');
+    }
+    return res;
+}
 
 void ler_arquivo( const string& nome_arquivo, bool& direcionado,
      bool& ponderado_aresta, bool& ponderado_vertice,
@@ -24,12 +35,14 @@ void ler_arquivo( const string& nome_arquivo, bool& direcionado,
         string linha;
         for (int i = 0; i < n_vertices; i++){
             getline(arq, linha);
+            linha = remove_espacos(linha);
             if(!linha.empty()){
                 vertices.push_back(linha);
             }
         }
 
         while(getline(arq,linha)){
+            linha = remove_espacos(linha);
             if(!linha.empty()){
                 arestas.push_back(linha);
             }
