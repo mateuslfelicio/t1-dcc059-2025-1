@@ -87,6 +87,56 @@ void Grafo::print(){
     }
 }
 
+/***
+ * @brief Insere um novo nó (vértice) no grafo
+ * @param id_no Identificador do nó a ser inserido
+ * @param peso Peso do nó, se o grafo for ponderado
+ */
+void Grafo::insereNo(char id_no, int peso) {
+    for(No *no : lista_adj) {
+        if(no->id == id_no) {
+            return;
+        }
+    }
+    No *novo_no = new No(id_no, peso);
+    lista_adj.push_back(novo_no);
+    ordem++;
+}
+
+/***
+ * @brief Insere uma aresta entre dois nós no grafo
+ * @param id_no_origem Identificador do nó de origem
+ * @param id_no_destino Identificador do nó de destino
+ * @param peso Peso da aresta, se o grafo for ponderado
+ */
+void Grafo::insereAresta(char id_no_origem, char id_no_destino, int peso) {
+    No *no_origem = nullptr;
+    No *no_destino = nullptr;
+
+    for(No *no : lista_adj) {
+        if(no->id == id_no_origem) {
+            no_origem = no;
+        } else if(no->id == id_no_destino) {
+            no_destino = no;
+        }
+    }
+
+    if(!no_origem || !no_destino)
+        return;
+
+    for(Aresta *aresta : no_origem->arestas)
+        if(aresta->id_no_alvo == id_no_destino)
+            return;
+
+    Aresta *nova_aresta = new Aresta(id_no_destino, peso);
+    no_origem->arestas.push_back(nova_aresta);
+
+    if(!in_direcionado) {
+        Aresta *aresta_inversa = new Aresta(id_no_origem, peso);
+        no_destino->arestas.push_back(aresta_inversa);
+    }
+}
+
 vector<char> Grafo::fecho_transitivo_direto(char id_no) {
     cout<<"Metodo nao implementado"<<endl;
     return {};

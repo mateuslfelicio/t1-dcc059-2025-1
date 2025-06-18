@@ -18,6 +18,9 @@ public:
     ~Grafo();
 
     void print();
+    void insereNo(char id_no, int peso = 0);
+    void insereAresta(char id_no_origem, char id_no_destino, int peso = 0);
+
     vector<char> fecho_transitivo_direto(char id_no); // a
     vector<char> fecho_transitivo_indireto(char id_no); // b
     vector<char> caminho_minimo_dijkstra(char id_no_a, char id_no_b); // c
