@@ -147,8 +147,38 @@ vector<char> Grafo::fecho_transitivo_indireto(char id_no) {
     return {};
 }
 
+
+/***
+ * @brief Calcula o caminho mínimo entre dois nós usando o algoritmo de Dijkstra
+ * @param id_no_a Identificador do nó de origem
+ * @param id_no_b Identificador do nó de destino
+ * @return Vetor de caracteres representando o caminho mínimo
+ */
 vector<char> Grafo::caminho_minimo_dijkstra(char id_no_a, char id_no_b) {
-    cout<<"Metodo nao implementado"<<endl;
+    
+    map<char, bool> visitados;
+    map<char, int> distancias;
+    
+    priority_queue<pair<int, char>, vector<pair<int,char>>, greater<pair<int,char>>> fila;
+
+    for(No *no: lista_adj) {
+            fila.push({(no->id == id_no_a) ? 0 : INF, no->id});
+    }
+
+    for(No *no : lista_adj) {
+        visitados[no->id] = false;
+        distancias[no->id] = INF;
+    }
+
+    distancias[id_no_a] = 0;
+
+    while(!fila.empty()) {
+        char atual = fila.top().second;
+        fila.pop();
+        if(visitados[atual]) continue;
+    }
+
+
     return {};
 }
 
