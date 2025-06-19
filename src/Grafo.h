@@ -30,7 +30,7 @@ public:
     vector<char> centro(); // h 3
     vector<char> periferia(); // h 4
     vector<char> vertices_de_articulacao(); // i
-
+    No *buscar_no(char id);
 
     int ordem;
     bool in_direcionado;
