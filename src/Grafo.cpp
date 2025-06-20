@@ -158,6 +158,7 @@ vector<char> Grafo::caminho_minimo_dijkstra(char id_no_a, char id_no_b) {
     
     map<char, bool> visitados;
     map<char, int> distancias;
+    map<char,char> antecessores;
     
     priority_queue<pair<int, char>, vector<pair<int,char>>, greater<pair<int,char>>> fila;
 
@@ -168,18 +169,44 @@ vector<char> Grafo::caminho_minimo_dijkstra(char id_no_a, char id_no_b) {
     for(No *no : lista_adj) {
         visitados[no->id] = false;
         distancias[no->id] = INF;
+        antecessores[no->id] = '\0';
     }
 
     distancias[id_no_a] = 0;
-
+    
     while(!fila.empty()) {
-        char atual = fila.top().second;
+        pair<int, char> atual = fila.top();
+        visitados[atual.second] = true;
         fila.pop();
-        if(visitados[atual]) continue;
+
+        //para k e S/ e k e fechoTransDir atual
+        vector<Aresta*> fecho_direto(lista_adj[atual.second-'a']->arestas);
+        for(Aresta *aresta : fecho_direto) {
+            if(visitados[aresta->id_no_alvo])
+                continue;
+            
+            int nova_distancia = distancias[atual.second] + aresta->peso;
+            if(nova_distancia < distancias[aresta->id_no_alvo]) {
+                distancias[aresta->id_no_alvo] = nova_distancia;
+                antecessores[aresta->id_no_alvo] = atual.second;
+                fila.push({nova_distancia, aresta->id_no_alvo});
+            }
+        }
+
     }
 
+    vector<char> caminho;
+    char atual = id_no_b;
+    if(antecessores[atual] == '\0')
+        return {};
+    while(atual != id_no_a) {
+        caminho.push_back(atual);
+        atual = antecessores[atual];
+    }
+    caminho.push_back(id_no_a);
+    reverse(caminho.begin(), caminho.end());
 
-    return {};
+    return caminho;
 }
 
 vector<char> Grafo::caminho_minimo_floyd(char id_no, char id_no_b) {
