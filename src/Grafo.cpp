@@ -168,8 +168,46 @@ Grafo * Grafo::arvore_geradora_minima_kruskal(vector<char> ids_nos) {
 }
 
 Grafo * Grafo::arvore_caminhamento_profundidade(char id_no) {
-    cout<<"Metodo nao implementado"<<endl;
-    return nullptr;
+    Grafo* arvore = new Grafo(in_direcionado, in_ponderado_aresta, in_ponderado_vertice, {}, {});
+    set<char> visitados;
+    vector<pair<char, char>> arestas_retorno;
+
+    No* inicial = nullptr;
+    for (No* no : lista_adj) {
+        if (no->id == id_no) {
+            inicial = no;
+            break;
+        }
+    }
+    if (inicial==nullptr) {
+        return arvore;
+    }
+    arvore_dfs(inicial, arvore, visitados, 0, arestas_retorno);
+    return arvore;
+}
+void Grafo::arvore_dfs(No* atual, Grafo* arvore, set<char>& visitados, char pai, vector<pair<char, char>>& arestas_retorno) {
+    visitados.insert(atual->id);
+    arvore->insereNo(atual->id, atual->peso);
+
+    for (Aresta* aresta : atual->arestas) {
+        if (aresta->id_no_alvo != pai){ // Não volta para o no pai
+            No* vizinho = nullptr;
+            for (No* no : lista_adj) {
+                if (no->id == aresta->id_no_alvo) {
+                    vizinho = no;
+                    break;
+                }
+            }
+            if (!vizinho) continue;
+            if (visitados.find(vizinho->id) == visitados.end()) {
+                arvore->insereAresta(atual->id, vizinho->id, aresta->peso);
+                arvore_dfs(vizinho, arvore, visitados, atual->id, arestas_retorno);
+            } else {
+                // Aresta de retorno
+                arestas_retorno.push_back({atual->id, vizinho->id});
+            }
+        }
+    }
 }
 
 int Grafo::raio() {

@@ -9,6 +9,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <set>
 
 
 using namespace std;
@@ -28,7 +29,8 @@ public:
     Grafo* arvore_geradora_minima_prim(vector<char> ids_nos); // e
     Grafo* arvore_geradora_minima_kruskal(vector<char> ids_nos); // f
     Grafo* arvore_caminhamento_profundidade(char id_no); // g
-    int raio(); // h 1
+    void arvore_dfs(No *atual, Grafo *arvore, set<char> &visitados, char pai, vector<pair<char, char>> &arestas_retorno);
+    int raio();     // h 1
     int diametro(); // h 2
     vector<char> centro(); // h 3
     vector<char> periferia(); // h 4
