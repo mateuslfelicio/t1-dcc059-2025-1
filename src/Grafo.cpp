@@ -156,17 +156,16 @@ vector<char> Grafo::fecho_transitivo_indireto(char id_no) {
  */
 vector<char> Grafo::caminho_minimo_dijkstra(char id_no_a, char id_no_b) {
     
+    map<char, No*> lista_aux;
     map<char, bool> visitados;
     map<char, int> distancias;
     map<char,char> antecessores;
     
     priority_queue<pair<int, char>, vector<pair<int,char>>, greater<pair<int,char>>> fila;
-
-    for(No *no: lista_adj) {
-            fila.push({(no->id == id_no_a) ? 0 : INF, no->id});
-    }
-
+    
     for(No *no : lista_adj) {
+        lista_aux[no->id] = no;
+        fila.push({(no->id == id_no_a) ? 0 : INF, no->id});
         visitados[no->id] = false;
         distancias[no->id] = INF;
         antecessores[no->id] = '\0';
@@ -179,8 +178,10 @@ vector<char> Grafo::caminho_minimo_dijkstra(char id_no_a, char id_no_b) {
         visitados[atual.second] = true;
         fila.pop();
 
-        //para k e S/ e k e fechoTransDir atual
-        vector<Aresta*> fecho_direto(lista_adj[atual.second-'a']->arestas);
+        if(distancias[atual.second] < atual.first)
+            continue;
+
+        vector<Aresta*> fecho_direto(lista_aux[atual.second]->arestas);
         for(Aresta *aresta : fecho_direto) {
             if(visitados[aresta->id_no_alvo])
                 continue;
@@ -200,6 +201,8 @@ vector<char> Grafo::caminho_minimo_dijkstra(char id_no_a, char id_no_b) {
     if(antecessores[atual] == '\0')
         return {};
     while(atual != id_no_a) {
+        if (antecessores[atual] == '\0')
+            return {};
         caminho.push_back(atual);
         atual = antecessores[atual];
     }
