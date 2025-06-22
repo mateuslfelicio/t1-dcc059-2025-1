@@ -84,8 +84,9 @@ void Gerenciador::comandos(Grafo* grafo) {
 
                 vector<char> ids = get_conjunto_ids(grafo,tam);
                 Grafo* arvore_geradora_minima_prim = grafo->arvore_geradora_minima_prim(ids);
-                cout<<"Metodo de impressao em tela nao implementado"<<endl<<endl;
-
+                cout << "Arvore Geradora Minima (Prim):" << endl;
+                arvore_geradora_minima_prim->print();
+                cout << endl;
                 if(pergunta_imprimir_arquivo("agm_prim.txt")) {
                     cout<<"Metodo de impressao em arquivo nao implementado"<<endl;
                 }
