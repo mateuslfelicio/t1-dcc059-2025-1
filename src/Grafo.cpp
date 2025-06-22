@@ -168,6 +168,7 @@ Grafo * Grafo::arvore_geradora_minima_kruskal(vector<char> ids_nos) {
 }
 
 Grafo * Grafo::arvore_caminhamento_profundidade(char id_no) {
+    cout << "Método arvore_caminhamento_profundidade chamado com id_no:" << id_no << endl;
     Grafo* arvore = new Grafo(in_direcionado, in_ponderado_aresta, in_ponderado_vertice, {}, {});
     set<char> visitados;
     vector<pair<char, char>> arestas_retorno;
@@ -182,11 +183,14 @@ Grafo * Grafo::arvore_caminhamento_profundidade(char id_no) {
     if (inicial==nullptr) {
         return arvore;
     }
+    cout<< "A funçao auxiliar foi chamada" << endl;
     arvore_dfs(inicial, arvore, visitados, 0, arestas_retorno);
     return arvore;
 }
+
 void Grafo::arvore_dfs(No* atual, Grafo* arvore, set<char>& visitados, char pai, vector<pair<char, char>>& arestas_retorno) {
     visitados.insert(atual->id);
+    cout << "Visitando nó: " << atual->id << endl;
     arvore->insereNo(atual->id, atual->peso);
 
     for (Aresta* aresta : atual->arestas) {
