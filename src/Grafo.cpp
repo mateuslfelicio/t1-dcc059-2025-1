@@ -1,7 +1,10 @@
 #include "Grafo.h"
 #include <unordered_map>
+#include <unordered_set>
 #include <queue>
 #include <tuple>
+#include <algorithm>
+#include "ConjuntoDisj.h"
 using namespace std;
 
 
@@ -166,6 +169,11 @@ No* Grafo::buscar_no(char id) {
     return nullptr;
 }
 
+/**
+ * @brief Gera a Árvore Geradora Mínima (AGM) usando o algoritmo de Prim.
+ * @param ids_nos Vetor com os identificadores dos nós do subconjunto a ser considerado.
+ * @return Ponteiro para um novo objeto Grafo representando a AGM.
+ */
 Grafo * Grafo::arvore_geradora_minima_prim(vector<char> ids_nos) {
     unordered_map<char, bool> visitado;
     for(auto* no : lista_adj){
@@ -206,22 +214,11 @@ Grafo * Grafo::arvore_geradora_minima_prim(vector<char> ids_nos) {
         if (visitado[destino]) continue;
         visitado[destino] = true;
 
-        // Adiciona nó destino à AGM se ainda não estiver
-        if (!mapa_agm.count(destino)) {
-            No* novo_no = new No(destino);
-            ArvoreGer->lista_adj.push_back(novo_no);
-            mapa_agm[destino] = novo_no;
-        }
-
-        // Adiciona aresta à AGM
-        No* no_origem_agm = mapa_agm[origem];
-        No* no_destino_agm = mapa_agm[destino];
-        if (no_origem_agm && no_destino_agm) {
-            no_origem_agm->arestas.push_back(new Aresta(destino, peso));
-            if (!in_direcionado) {
-                no_destino_agm->arestas.push_back(new Aresta(origem, peso));
-            }
-        }
+if (!mapa_agm.count(destino)) {
+    ArvoreGer->insereNo(destino, 0); // ou use o peso correto se necessário
+    mapa_agm[destino] = ArvoreGer->buscar_no(destino);
+}
+ArvoreGer->insereAresta(origem, destino, peso);
 
         // Busca ponteiro para o nó destino no grafo original
         No* no_destino = buscar_no(destino);
@@ -237,9 +234,54 @@ Grafo * Grafo::arvore_geradora_minima_prim(vector<char> ids_nos) {
     return ArvoreGer;
 }
 
+/**
+ * @brief Gera a Árvore Geradora Mínima (AGM) usando o algoritmo de Kruskal.
+ * @param ids_nos Vetor com os identificadores dos nós do subconjunto a ser considerado.
+ * @return Ponteiro para um novo objeto Grafo representando a AGM.
+ */
 Grafo * Grafo::arvore_geradora_minima_kruskal(vector<char> ids_nos) {
-    cout<<"Metodo nao implementado"<<endl;
-    return nullptr;
+    struct Edge { int peso; char u, v; };
+    vector<Edge> arestas;
+    unordered_set<string> inseridas;
+    for (auto* no : lista_adj) {
+        for (auto* aresta : no->arestas) {
+            string chave = string() + min(no->id, aresta->id_no_alvo) + max(no->id, aresta->id_no_alvo);
+            if (!inseridas.count(chave)) {
+                arestas.push_back({aresta->peso, no->id, aresta->id_no_alvo});
+                inseridas.insert(chave);
+            }
+        }
+    }
+
+    sort(arestas.begin(), arestas.end(), [](const Edge& a, const Edge& b) {
+        return a.peso < b.peso;
+    });
+
+    ConjuntoDisj uf;
+    uf.make_set(lista_adj);
+
+    Grafo* agm = new Grafo(false, true, false);
+    unordered_map<char, No*> mapa_agm;
+    for (auto* no : lista_adj) {
+        No* novo_no = new No(no->id, no->peso);
+        agm->lista_adj.push_back(novo_no);
+        mapa_agm[no->id] = novo_no;
+    }
+
+    int arestas_agm = 0;
+    for (const auto& edge : arestas) {
+        if (uf.find(edge.u) != uf.find(edge.v)) {
+            uf.unite(edge.u, edge.v);
+            mapa_agm[edge.u]->arestas.push_back(new Aresta(edge.v, edge.peso));
+            if (!in_direcionado)
+                mapa_agm[edge.v]->arestas.push_back(new Aresta(edge.u, edge.peso));
+            arestas_agm++;
+            if (arestas_agm == (int)lista_adj.size() - 1) break;
+        }
+    }
+
+    return agm;
+
 }
 
 Grafo * Grafo::arvore_caminhamento_profundidade(char id_no) {
