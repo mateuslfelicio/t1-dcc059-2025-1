@@ -12,6 +12,7 @@
 #include <queue>
 #include <algorithm>
 #include <map>
+#include <fstream>
 
 #define INF 1000000000
 
@@ -24,6 +25,7 @@ public:
     void print();
     void insereNo(char id_no, int peso = 0);
     void insereAresta(char id_no_origem, char id_no_destino, int peso = 0);
+    void gravar(string nome_arquivo);
 
     vector<char> fecho_transitivo_direto(char id_no); // a
     vector<char> fecho_transitivo_indireto(char id_no); // b

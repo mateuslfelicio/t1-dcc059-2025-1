@@ -12,7 +12,7 @@ using namespace std;
  * @param arestas Vetor de strings representando as arestas, onde cada string é composta por dois caracteres (vértices) e um número (se ponderado)
  */
 Grafo::Grafo(bool direcionado, bool ponderadoAresta, bool ponderadoVertice, vector<string> vertices, vector<string> arestas) {
-    int ordem = 0;
+    ordem = 0;
     in_direcionado = direcionado;
     in_ponderado_aresta = ponderadoAresta;
     in_ponderado_vertice = ponderadoVertice;
@@ -85,6 +85,40 @@ void Grafo::print(){
         }
         cout << endl;
     }
+}
+
+/***
+ * @brief Grava o grafo em um arquivo
+ * @param nome_arquivo Nome do arquivo onde o grafo será gravado
+ */
+void Grafo::gravar(string nome_arquivo) {
+    fstream arquivo;
+    arquivo.open(nome_arquivo, ios::out);
+    if(!arquivo.is_open()) {
+        cerr << "Erro ao abrir o arquivo: " << nome_arquivo << endl;
+        return;
+    }
+    arquivo << in_direcionado << " "
+            << in_ponderado_aresta << " "
+            << in_ponderado_vertice << endl;
+    arquivo << ordem;
+    for(No *no : lista_adj) {
+        arquivo << endl << no->id;
+        if(in_ponderado_vertice) {
+            arquivo << " " << no->peso;
+        }
+    }
+    for(No *no : lista_adj) {
+        for(Aresta *aresta : no->arestas) {
+            if(!in_direcionado && (no->id > aresta->id_no_alvo))
+                continue;
+            arquivo << endl << no->id << " " << aresta->id_no_alvo;
+            if(in_ponderado_aresta) {
+                arquivo << " " << aresta->peso;
+            }
+        }
+    }
+    arquivo.close();
 }
 
 /***
