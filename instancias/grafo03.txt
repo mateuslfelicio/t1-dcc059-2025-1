@@ -1,15 +1,15 @@
 1 1 0
 10
-A 0
-B 0
-C 0
-D 0
-E 0
-F 0
-G 0
-H 0
-I 0
-J 0
+A
+B
+C
+D
+E
+F
+G
+H
+I
+J
 A B 5
 A C 2
 A D 3
