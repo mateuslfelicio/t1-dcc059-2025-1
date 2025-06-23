@@ -128,10 +128,10 @@ void Gerenciador::comandos(Grafo* grafo) {
 
             char id_no = get_id_entrada();
             Grafo* arvore_caminhamento_profundidade = grafo->arvore_caminhamento_profundidade(id_no);
-            cout<<"Metodo de impressao em tela nao implementado, Arvore com probelma"<<endl<<endl;
+            cout<<"Metodo de impressao em tela nao implementado"<<endl<<endl;
 
             if(pergunta_imprimir_arquivo("arvore_caminhamento_profundidade.txt")) {
-                cout<<"Metodo de impressao em arquivo nao implementado, 2 erro"<<endl;
+                cout<<"Metodo de impressao em arquivo nao implementado"<<endl;
             }
 
             delete arvore_caminhamento_profundidade;
