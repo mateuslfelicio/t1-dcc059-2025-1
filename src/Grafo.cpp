@@ -357,18 +357,14 @@ Grafo * Grafo::arvore_geradora_minima_kruskal(vector<char> ids_nos) {
     Grafo* agm = new Grafo(false, true, false);
     unordered_map<char, No*> mapa_agm;
     for (auto* no : lista_adj) {
-        No* novo_no = new No(no->id, no->peso);
-        agm->lista_adj.push_back(novo_no);
-        mapa_agm[no->id] = novo_no;
+        agm->insereNo(no->id, no->peso);
     }
 
     int arestas_agm = 0;
     for (const auto& edge : arestas) {
         if (uf.find(edge.u) != uf.find(edge.v)) {
             uf.unite(edge.u, edge.v);
-            mapa_agm[edge.u]->arestas.push_back(new Aresta(edge.v, edge.peso));
-            if (!in_direcionado)
-                mapa_agm[edge.v]->arestas.push_back(new Aresta(edge.u, edge.peso));
+            agm->insereAresta(edge.u, edge.v, edge.peso);
             arestas_agm++;
             if (arestas_agm == (int)lista_adj.size() - 1) break;
         }
