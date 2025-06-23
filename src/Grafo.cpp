@@ -337,7 +337,7 @@ Grafo * Grafo::arvore_geradora_minima_kruskal(vector<char> ids_nos) {
 }
 
 Grafo * Grafo::arvore_caminhamento_profundidade(char id_no) {
-    Grafo* arvore = new Grafo(in_direcionado, in_ponderado_aresta, in_ponderado_vertice, {}, {});
+    Grafo* arvore = new Grafo(1, in_ponderado_aresta, in_ponderado_vertice, {}, {});
     set<char> visitados;
     vector<pair<char, char>> arestas_retorno;
 
@@ -370,6 +370,7 @@ void Grafo::arvore_dfs(No* atual, Grafo* arvore, set<char>& visitados, char pai,
             }
             if (!vizinho) continue;
             if (visitados.find(vizinho->id) == visitados.end()) {
+                arvore->insereNo(vizinho->id, vizinho->peso);
                 arvore->insereAresta(atual->id, vizinho->id, aresta->peso);
                 arvore_dfs(vizinho, arvore, visitados, atual->id, arestas_retorno);
             } else {
