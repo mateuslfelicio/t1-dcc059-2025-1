@@ -17,7 +17,7 @@ using namespace std;
  * @param arestas Vetor de strings representando as arestas, onde cada string é composta por dois caracteres (vértices) e um número (se ponderado)
  */
 Grafo::Grafo(bool direcionado, bool ponderadoAresta, bool ponderadoVertice, vector<string> vertices, vector<string> arestas) {
-    int ordem = 0;
+    ordem = 0;
     in_direcionado = direcionado;
     in_ponderado_aresta = ponderadoAresta;
     in_ponderado_vertice = ponderadoVertice;
@@ -93,6 +93,40 @@ void Grafo::print(){
 }
 
 /***
+ * @brief Grava o grafo em um arquivo
+ * @param nome_arquivo Nome do arquivo onde o grafo será gravado
+ */
+void Grafo::gravar(string nome_arquivo) {
+    fstream arquivo;
+    arquivo.open(nome_arquivo, ios::out);
+    if(!arquivo.is_open()) {
+        cerr << "Erro ao abrir o arquivo: " << nome_arquivo << endl;
+        return;
+    }
+    arquivo << in_direcionado << " "
+            << in_ponderado_aresta << " "
+            << in_ponderado_vertice << endl;
+    arquivo << ordem;
+    for(No *no : lista_adj) {
+        arquivo << endl << no->id;
+        if(in_ponderado_vertice) {
+            arquivo << " " << no->peso;
+        }
+    }
+    for(No *no : lista_adj) {
+        for(Aresta *aresta : no->arestas) {
+            if(!in_direcionado && (no->id > aresta->id_no_alvo))
+                continue;
+            arquivo << endl << no->id << " " << aresta->id_no_alvo;
+            if(in_ponderado_aresta) {
+                arquivo << " " << aresta->peso;
+            }
+        }
+    }
+    arquivo.close();
+}
+
+/***
  * @brief Insere um novo nó (vértice) no grafo
  * @param id_no Identificador do nó a ser inserido
  * @param peso Peso do nó, se o grafo for ponderado
@@ -152,9 +186,69 @@ vector<char> Grafo::fecho_transitivo_indireto(char id_no) {
     return {};
 }
 
+
+/***
+ * @brief Calcula o caminho mínimo entre dois nós usando o algoritmo de Dijkstra
+ * @param id_no_a Identificador do nó de origem
+ * @param id_no_b Identificador do nó de destino
+ * @return Vetor de caracteres representando o caminho mínimo
+ */
 vector<char> Grafo::caminho_minimo_dijkstra(char id_no_a, char id_no_b) {
-    cout<<"Metodo nao implementado"<<endl;
-    return {};
+    
+    map<char, No*> lista_aux;
+    map<char, bool> visitados;
+    map<char, int> distancias;
+    map<char,char> antecessores;
+    
+    priority_queue<pair<int, char>, vector<pair<int,char>>, greater<pair<int,char>>> fila;
+    
+    for(No *no : lista_adj) {
+        lista_aux[no->id] = no;
+        fila.push({(no->id == id_no_a) ? 0 : INF, no->id});
+        visitados[no->id] = false;
+        distancias[no->id] = INF;
+        antecessores[no->id] = '\0';
+    }
+
+    distancias[id_no_a] = 0;
+    
+    while(!fila.empty()) {
+        pair<int, char> atual = fila.top();
+        visitados[atual.second] = true;
+        fila.pop();
+
+        if(distancias[atual.second] < atual.first)
+            continue;
+
+        vector<Aresta*> fecho_direto(lista_aux[atual.second]->arestas);
+        for(Aresta *aresta : fecho_direto) {
+            if(visitados[aresta->id_no_alvo])
+                continue;
+            
+            int nova_distancia = distancias[atual.second] + aresta->peso;
+            if(nova_distancia < distancias[aresta->id_no_alvo]) {
+                distancias[aresta->id_no_alvo] = nova_distancia;
+                antecessores[aresta->id_no_alvo] = atual.second;
+                fila.push({nova_distancia, aresta->id_no_alvo});
+            }
+        }
+
+    }
+
+    vector<char> caminho;
+    char atual = id_no_b;
+    if(antecessores[atual] == '\0')
+        return {};
+    while(atual != id_no_a) {
+        if (antecessores[atual] == '\0')
+            return {};
+        caminho.push_back(atual);
+        atual = antecessores[atual];
+    }
+    caminho.push_back(id_no_a);
+    reverse(caminho.begin(), caminho.end());
+
+    return caminho;
 }
 
 vector<char> Grafo::caminho_minimo_floyd(char id_no, char id_no_b) {
@@ -285,8 +379,47 @@ Grafo * Grafo::arvore_geradora_minima_kruskal(vector<char> ids_nos) {
 }
 
 Grafo * Grafo::arvore_caminhamento_profundidade(char id_no) {
-    cout<<"Metodo nao implementado"<<endl;
-    return nullptr;
+    Grafo* arvore = new Grafo(in_direcionado, in_ponderado_aresta, in_ponderado_vertice, {}, {});
+    set<char> visitados;
+    vector<pair<char, char>> arestas_retorno;
+
+    No* inicial = nullptr;
+    for (No* no : lista_adj) {
+        if (no->id == id_no) {
+            inicial = no;
+            break;
+        }
+    }
+    if (inicial==nullptr) {
+        return arvore;
+    }
+    arvore_dfs(inicial, arvore, visitados, 0, arestas_retorno);
+    return arvore;
+}
+
+void Grafo::arvore_dfs(No* atual, Grafo* arvore, set<char>& visitados, char pai, vector<pair<char, char>>& arestas_retorno) {
+    visitados.insert(atual->id);
+    arvore->insereNo(atual->id, atual->peso);
+
+    for (Aresta* aresta : atual->arestas) {
+        if (aresta->id_no_alvo != pai){ // Não volta para o no pai
+            No* vizinho = nullptr;
+            for (No* no : lista_adj) {
+                if (no->id == aresta->id_no_alvo) {
+                    vizinho = no;
+                    break;
+                }
+            }
+            if (!vizinho) continue;
+            if (visitados.find(vizinho->id) == visitados.end()) {
+                arvore->insereAresta(atual->id, vizinho->id, aresta->peso);
+                arvore_dfs(vizinho, arvore, visitados, atual->id, arestas_retorno);
+            } else {
+                // Aresta de retorno
+                arestas_retorno.push_back({atual->id, vizinho->id});
+            }
+        }
+    }
 }
 
 int Grafo::raio() {
