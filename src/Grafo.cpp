@@ -125,6 +125,7 @@ void Grafo::gravar(string nome_arquivo) {
  * @brief Insere um novo nó (vértice) no grafo
  * @param id_no Identificador do nó a ser inserido
  * @param peso Peso do nó, se o grafo for ponderado
+ *  @note Se o nó já existir, não será inserido novamente
  */
 void Grafo::insereNo(char id_no, int peso) {
     for(No *no : lista_adj) {
@@ -142,6 +143,8 @@ void Grafo::insereNo(char id_no, int peso) {
  * @param id_no_origem Identificador do nó de origem
  * @param id_no_destino Identificador do nó de destino
  * @param peso Peso da aresta, se o grafo for ponderado
+ * @note se ambos os nós não existirem, a aresta não será inserida
+ * @note se a aresta já existir, não será inserida novamente
  */
 void Grafo::insereAresta(char id_no_origem, char id_no_destino, int peso) {
     No *no_origem = nullptr;
