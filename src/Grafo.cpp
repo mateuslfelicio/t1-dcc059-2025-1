@@ -174,6 +174,46 @@ void Grafo::insereAresta(char id_no_origem, char id_no_destino, int peso) {
     }
 }
 
+void Grafo::temporaria(int &raio, int &diametro, vector<char> &centro, vector<char> &periferia) {
+    Grafo grafo = new Grafo(in_direcionado, 1, 0);
+    for(No *no : lista_adj) {
+        grafo.insereNo(no->id, no->peso);
+    }
+    for(No *no : lista_adj) {
+        for(Aresta *aresta : no->arestas) {
+            grafo.insereAresta(no->id, aresta->id_no_alvo, 1);
+        }
+    }
+    vector<vector<int>> distancias(grafo.ordem, vector<int>(grafo.ordem, INF));
+    vector<vector<char>> antecessores(grafo.ordem, vector<char>(grafo.ordem, '\0'));
+    grafo.floyd(distancias, antecessores);
+
+    for(int i = 0; i < grafo.ordem; i++) {
+        for(int j = 0; j < grafo.ordem; j++) {
+            if(distancias[i][j] != INF) {
+                if(i == j) continue;
+                if(distancias[i][j] > diametro) {
+                    diametro = distancias[i][j];
+                }
+                if(distancias[i][j] < raio) {
+                    raio = distancias[i][j];
+                }
+            }
+        }
+    }
+
+    for(int i = 0; i < grafo.ordem; i++) {
+        for(int j = 0; j < grafo.ordem; j++) {
+            if(distancias[i][j] == raio) {
+                centro.push_back(grafo.lista_adj[i]->id);
+            }
+            if(distancias[i][j] == diametro) {
+                periferia.push_back(grafo.lista_adj[i]->id);
+            }
+        }
+    }
+}
+
 vector<char> Grafo::fecho_transitivo_direto(char id_no) {
     cout<<"Metodo nao implementado"<<endl;
     return {};

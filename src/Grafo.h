@@ -27,6 +27,7 @@ public:
     void insereAresta(char id_no_origem, char id_no_destino, int peso = 0);
     void gravar(string nome_arquivo);
     void floyd(vector<vector<int>> &distancias, vector<vector<char>> &antecessores);
+    void temporaria(int &raio, int &diametro, vector<char> &centro, vector<char> &periferia);
 
     vector<char> fecho_transitivo_direto(char id_no); // a
     vector<char> fecho_transitivo_indireto(char id_no); // b
