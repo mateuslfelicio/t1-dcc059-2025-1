@@ -7,7 +7,6 @@
 #include "ConjuntoDisj.h"
 using namespace std;
 
-
 /***
  * @brief Construtor da classe Grafo
  * @param direcionado Indica se o grafo é direcionado
