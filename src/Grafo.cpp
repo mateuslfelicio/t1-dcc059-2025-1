@@ -98,25 +98,25 @@ void Grafo::gravar(string nome_arquivo) {
         cerr << "Erro ao abrir o arquivo: " << nome_arquivo << endl;
         return;
     }
-    arquivo << in_direcionado << " "
-            << in_ponderado_aresta << " "
-            << in_ponderado_vertice << endl;
-    arquivo << ordem;
+    arquivo << "Direcionado: "<< in_direcionado << endl
+            << "Ponderado nos vertices:" << in_ponderado_aresta << endl
+            << "Ponderado nas arestas" << in_ponderado_vertice << endl;
+    arquivo << "Ordem: " << ordem << endl;
+    arquivo << "Lista de adjacencia:" << endl;
+    arquivo << "No(peso) -> Arestas(peso)" << endl;
     for(No *no : lista_adj) {
-        arquivo << endl << no->id;
+        arquivo << no->id;
         if(in_ponderado_vertice) {
-            arquivo << " " << no->peso;
+            arquivo << "(" << no->peso << ")";
         }
-    }
-    for(No *no : lista_adj) {
         for(Aresta *aresta : no->arestas) {
-            if(!in_direcionado && (no->id > aresta->id_no_alvo))
-                continue;
-            arquivo << endl << no->id << " " << aresta->id_no_alvo;
+            arquivo << " -> ";
+            arquivo << aresta->id_no_alvo;
             if(in_ponderado_aresta) {
-                arquivo << " " << aresta->peso;
+                arquivo << "(" << aresta->peso << ")";
             }
         }
+        arquivo << endl;
     }
     arquivo.close();
 }
@@ -250,8 +250,79 @@ vector<char> Grafo::caminho_minimo_dijkstra(char id_no_a, char id_no_b) {
 }
 
 vector<char> Grafo::caminho_minimo_floyd(char id_no, char id_no_b) {
-    cout<<"Metodo nao implementado"<<endl;
-    return {};
+    vector<vector<int>> distancias(ordem, vector<int>(ordem, INF));
+    vector<vector<char>> antecessores(ordem, vector<char>(ordem, '\0'));
+    floyd(distancias, antecessores);
+
+    // Mapeia id para índice e vice-versa
+    map<char, int> id_to_index;
+    map<int, char> index_to_id;
+    int i = 0, c1 = -1, c2 = -1;
+    for(No *no : lista_adj) {
+        id_to_index[no->id] = i;
+        index_to_id[i] = no->id;
+        if(no->id == id_no)
+            c1 = i;
+        if(no->id == id_no_b)
+            c2 = i;
+        i++;
+    }
+    if(c1 == -1 || c2 == -1 || distancias[c1][c2] == INF)
+        return {};
+
+    // Reconstrução do caminho de trás para frente
+    vector<char> caminho;
+    int atual = c2;
+    while(atual != c1) {
+        caminho.push_back(index_to_id[atual]);
+        char ant = antecessores[c1][atual];
+        if(ant == '\0') // Não há caminho
+            return {};
+        atual = id_to_index[ant];
+    }
+    caminho.push_back(index_to_id[c1]);
+    reverse(caminho.begin(), caminho.end());
+    return caminho;
+}
+
+void Grafo::floyd(vector<vector<int>> &distancias, vector<vector<char>> &antecessores) {
+    int n = ordem;
+
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < n; j++) {
+            if(i == j) {
+                distancias[i][j] = 0;
+                antecessores[i][j] = '\0';
+            } else {
+                distancias[i][j] = INF;
+                antecessores[i][j] = '\0';
+            }
+        }
+    }
+
+    for(int i = 0; i < n; i++) {
+        No *no = lista_adj[i];
+        for(Aresta *aresta : no->arestas) {
+            int j = 0;
+            while(j < n && lista_adj[j]->id != aresta->id_no_alvo) j++;
+            if(j < n) {
+                distancias[i][j] = aresta->peso;
+                antecessores[i][j] = no->id;
+            }
+        }
+    }
+
+    for(int k = 0; k < n; k++) {
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < n; j++) {
+                if(distancias[i][j] > distancias[i][k] + distancias[k][j]) {
+                    distancias[i][j] = distancias[i][k] + distancias[k][j];
+                    antecessores[i][j] = antecessores[k][j];
+                }
+            }
+        }
+    }
+
 }
 
 Grafo * Grafo::arvore_geradora_minima_prim(vector<char> ids_nos) {

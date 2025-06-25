@@ -68,7 +68,10 @@ void Gerenciador::comandos(Grafo* grafo) {
             char id_no_1 = get_id_entrada();
             char id_no_2 = get_id_entrada();
             vector<char> caminho_minimo_floyd = grafo->caminho_minimo_floyd(id_no_1,id_no_2);
-            cout<<"Metodo de impressao em tela nao implementado"<<endl<<endl;
+            for(char id : caminho_minimo_floyd) {
+                cout << id << "";
+            }
+            cout << endl << endl;
 
             if(pergunta_imprimir_arquivo("caminho_minimo_floyd.txt")) {
                 cout<<"Metodo de impressao em arquivo nao implementado"<<endl;
