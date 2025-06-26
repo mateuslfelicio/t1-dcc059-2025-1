@@ -95,7 +95,7 @@ void Grafo::gravar(string nome_arquivo) {
     fstream arquivo;
     arquivo.open(nome_arquivo, ios::out);
     if(!arquivo.is_open()) {
-        cerr << "Erro ao abrir o arquivo: " << nome_arquivo << endl;
+        cout << "Erro ao abrir o arquivo: " << nome_arquivo << endl;
         return;
     }
     arquivo << "Direcionado: "<< in_direcionado << endl
@@ -118,6 +118,7 @@ void Grafo::gravar(string nome_arquivo) {
         }
         arquivo << endl;
     }
+    cout << "Grafo gravado em " << nome_arquivo << endl;
     arquivo.close();
 }
 
@@ -175,6 +176,10 @@ void Grafo::insereAresta(char id_no_origem, char id_no_destino, int peso) {
 }
 
 void Grafo::temporaria(int &raio, int &diametro, vector<char> &centro, vector<char> &periferia) {
+
+    raio = INF;
+    diametro = 0;
+
     Grafo grafo = new Grafo(in_direcionado, 1, 0);
     for(No *no : lista_adj) {
         grafo.insereNo(no->id, no->peso);
@@ -184,14 +189,20 @@ void Grafo::temporaria(int &raio, int &diametro, vector<char> &centro, vector<ch
             grafo.insereAresta(no->id, aresta->id_no_alvo, 1);
         }
     }
+    
     vector<vector<int>> distancias(grafo.ordem, vector<int>(grafo.ordem, INF));
     vector<vector<char>> antecessores(grafo.ordem, vector<char>(grafo.ordem, '\0'));
+    
     grafo.floyd(distancias, antecessores);
+
+    map<char, int> excentricidade;
 
     for(int i = 0; i < grafo.ordem; i++) {
         for(int j = 0; j < grafo.ordem; j++) {
+            excentricidade[grafo.lista_adj[i]->id] = max(excentricidade[grafo.lista_adj[i]->id], distancias[i][j]);
             if(distancias[i][j] != INF) {
                 if(i == j) continue;
+
                 if(distancias[i][j] > diametro) {
                     diametro = distancias[i][j];
                 }
@@ -201,15 +212,12 @@ void Grafo::temporaria(int &raio, int &diametro, vector<char> &centro, vector<ch
             }
         }
     }
-
     for(int i = 0; i < grafo.ordem; i++) {
-        for(int j = 0; j < grafo.ordem; j++) {
-            if(distancias[i][j] == raio) {
-                centro.push_back(grafo.lista_adj[i]->id);
-            }
-            if(distancias[i][j] == diametro) {
-                periferia.push_back(grafo.lista_adj[i]->id);
-            }
+        if(excentricidade[grafo.lista_adj[i]->id] == raio) {
+            centro.push_back(grafo.lista_adj[i]->id);
+        }
+        if(excentricidade[grafo.lista_adj[i]->id] == diametro) {
+            periferia.push_back(grafo.lista_adj[i]->id);
         }
     }
 }
