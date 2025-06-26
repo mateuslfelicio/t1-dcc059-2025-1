@@ -78,54 +78,61 @@ void Gerenciador::comandos(Grafo* grafo) {
             break;
         }
         case 'e': {
-
+            
             int tam;
-            cout<<"Digite o tamanho do subconjunto: ";
-            cin>>tam;
-
-            if(tam > 0 && tam <= grafo->ordem) {
-
-                vector<char> ids = get_conjunto_ids(grafo,tam);
+            cout << "Digite o tamanho do subconjunto: ";
+            cin >> tam;
+        
+            if (tam > 0 && tam <= grafo->ordem) {
+                vector<char> ids = get_conjunto_ids(grafo, tam);
                 Grafo* arvore_geradora_minima_prim = grafo->arvore_geradora_minima_prim(ids);
+                if (arvore_geradora_minima_prim == nullptr) {
+                    cout << "Não existe AGM: o grafo é desconexo." << endl;
+                    break;
+                } else{
                 cout << "Arvore Geradora Minima (Prim):" << endl;
                 arvore_geradora_minima_prim->print();
                 cout << endl;
-                if(pergunta_imprimir_arquivo("agm_prim.txt")) {
-                    cout<<"Metodo de impressao em arquivo nao implementado"<<endl;
                 }
-
+                if (pergunta_imprimir_arquivo("agm_prim.txt")) {
+                    arvore_geradora_minima_prim->gravar("agm_prim.txt");
+                    cout << "AGM (Prim) gravada em agm_prim.txt" << endl << endl;
+                }
                 delete arvore_geradora_minima_prim;
-
-            }else {
-                cout<<"Valor invalido"<<endl;
+            } else {
+                cout << "Algo deu errado." << endl;
+                break;
             }
-
             break;
         }
 
         case 'f': {
 
             int tam;
-            cout<<"Digite o tamanho do subconjunto: ";
-            cin>>tam;
-
-            if(tam > 0 && tam <= grafo->ordem) {
-
-                vector<char> ids = get_conjunto_ids(grafo,tam);
+            cout << "Digite o tamanho do subconjunto: ";
+            cin >> tam;
+        
+            if (tam > 0 && tam <= grafo->ordem) {
+                vector<char> ids = get_conjunto_ids(grafo, tam);
                 Grafo* arvore_geradora_minima_kruskal = grafo->arvore_geradora_minima_kruskal(ids);
+               if(arvore_geradora_minima_kruskal == nullptr){
+                cout << "Não existe AGM: o grafo é desconexo." << endl;
+                break;
+               }
+               else{
                 cout << "Arvore Geradora Minima (Kruskal):" << endl;
                 arvore_geradora_minima_kruskal->print();
                 cout << endl;
-                if(pergunta_imprimir_arquivo("agm_kruskal.txt")) {
-                    cout<<"Metodo de impressao em arquivo nao implementado"<<endl;
+               }
+                if (pergunta_imprimir_arquivo("agm_kruskal.txt")) {
+                    arvore_geradora_minima_kruskal->gravar("agm_kruskal.txt");
+                    cout << "AGM (kruskal) gravada em agm_kruskal.txt" << endl << endl;
                 }
-
                 delete arvore_geradora_minima_kruskal;
-
-            }else {
-                cout<<"Valor invalido"<<endl;
+            } else {
+                cout << "Algo deu errado." << endl;
+                break;
             }
-
             break;
         }
 

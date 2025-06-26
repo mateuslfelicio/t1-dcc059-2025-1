@@ -324,6 +324,11 @@ ArvoreGer->insereAresta(origem, destino, peso);
         }
     }
 
+    if(ArvoreGer->lista_adj.size()<lista_adj.size()){
+        delete ArvoreGer;
+        return nullptr;
+    }
+
     return ArvoreGer;
 }
 
@@ -368,7 +373,10 @@ Grafo * Grafo::arvore_geradora_minima_kruskal(vector<char> ids_nos) {
             if (arestas_agm == (int)lista_adj.size() - 1) break;
         }
     }
-
+    if(arestas_agm < (int) lista_adj.size()-1){
+        delete agm;
+        return nullptr;
+    }
     return agm;
 
 }
