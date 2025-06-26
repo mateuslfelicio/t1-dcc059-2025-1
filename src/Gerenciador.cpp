@@ -87,7 +87,8 @@ void Gerenciador::comandos(Grafo* grafo) {
                 vector<char> ids = get_conjunto_ids(grafo, tam);
                 Grafo* arvore_geradora_minima_prim = grafo->arvore_geradora_minima_prim(ids);
                 if (arvore_geradora_minima_prim == nullptr) {
-                    cout << "Não existe AGM: o grafo é desconexo." << endl;
+                    cout << "Nao existe AGM: grafo desconexo." << endl;
+                    cout << endl;
                     break;
                 } else{
                 cout << "Arvore Geradora Minima (Prim):" << endl;
@@ -116,7 +117,8 @@ void Gerenciador::comandos(Grafo* grafo) {
                 vector<char> ids = get_conjunto_ids(grafo, tam);
                 Grafo* arvore_geradora_minima_kruskal = grafo->arvore_geradora_minima_kruskal(ids);
                if(arvore_geradora_minima_kruskal == nullptr){
-                cout << "Não existe AGM: o grafo é desconexo." << endl;
+                cout << "Nao existe AGM: grafo desconexo." << endl;
+                cout << endl;
                 break;
                }
                else{

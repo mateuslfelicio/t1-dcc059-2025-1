@@ -268,9 +268,10 @@ No* Grafo::buscar_no(char id) {
  * @return Ponteiro para um novo objeto Grafo representando a AGM.
  */
 Grafo * Grafo::arvore_geradora_minima_prim(vector<char> ids_nos) {
+    unordered_set<char> subconjunto(ids_nos.begin(), ids_nos.end());
     unordered_map<char, bool> visitado;
-    for(auto* no : lista_adj){
-        visitado[no->id] = false;
+    for(auto id : ids_nos){
+        visitado[id] = false;
     }
 
     using ArestaInfo = tuple<int, char, char>;
@@ -289,13 +290,12 @@ Grafo * Grafo::arvore_geradora_minima_prim(vector<char> ids_nos) {
 
     No* no_atual = buscar_no(id_inicial);
 
-
-  if(no_atual){
-    for (Aresta* aresta : no_atual->arestas) {
-        fila.push(make_tuple(aresta->peso, no_atual->id, aresta->id_no_alvo));
-    
+    if(no_atual){
+        for (Aresta* aresta : no_atual->arestas) {
+            if (subconjunto.count(aresta->id_no_alvo))
+                fila.push(make_tuple(aresta->peso, no_atual->id, aresta->id_no_alvo));
+        }
     }
-}
 
     while (!fila.empty()) {
         auto aresta = fila.top();
@@ -307,24 +307,22 @@ Grafo * Grafo::arvore_geradora_minima_prim(vector<char> ids_nos) {
         if (visitado[destino]) continue;
         visitado[destino] = true;
 
-if (!mapa_agm.count(destino)) {
-    ArvoreGer->insereNo(destino, 0); // ou use o peso correto se necessário
-    mapa_agm[destino] = ArvoreGer->buscar_no(destino);
-}
-ArvoreGer->insereAresta(origem, destino, peso);
+        if (!mapa_agm.count(destino)) {
+            ArvoreGer->insereNo(destino, 0);
+            mapa_agm[destino] = ArvoreGer->buscar_no(destino);
+        }
+        ArvoreGer->insereAresta(origem, destino, peso);
 
-        // Busca ponteiro para o nó destino no grafo original
         No* no_destino = buscar_no(destino);
 
-        // Adiciona as arestas do novo nó à fila
         for (Aresta* aresta : no_destino->arestas) {
-            if (!visitado[aresta->id_no_alvo]) {
+            if (!visitado[aresta->id_no_alvo] && subconjunto.count(aresta->id_no_alvo)) {
                 fila.push(make_tuple(aresta->peso, destino, aresta->id_no_alvo));
             }
         }
     }
 
-    if(ArvoreGer->lista_adj.size()<lista_adj.size()){
+    if(ArvoreGer->lista_adj.size()<ids_nos.size()){
         delete ArvoreGer;
         return nullptr;
     }
@@ -338,11 +336,14 @@ ArvoreGer->insereAresta(origem, destino, peso);
  * @return Ponteiro para um novo objeto Grafo representando a AGM.
  */
 Grafo * Grafo::arvore_geradora_minima_kruskal(vector<char> ids_nos) {
+    unordered_set<char> subconjunto(ids_nos.begin(), ids_nos.end());
     struct Edge { int peso; char u, v; };
     vector<Edge> arestas;
     unordered_set<string> inseridas;
     for (auto* no : lista_adj) {
+        if (!subconjunto.count(no->id)) continue;
         for (auto* aresta : no->arestas) {
+            if (!subconjunto.count(aresta->id_no_alvo)) continue;
             string chave = string() + min(no->id, aresta->id_no_alvo) + max(no->id, aresta->id_no_alvo);
             if (!inseridas.count(chave)) {
                 arestas.push_back({aresta->peso, no->id, aresta->id_no_alvo});
@@ -356,11 +357,14 @@ Grafo * Grafo::arvore_geradora_minima_kruskal(vector<char> ids_nos) {
     });
 
     ConjuntoDisj uf;
-    uf.make_set(lista_adj);
+    vector<No*> nos_sub;
+    for (auto* no : lista_adj) {
+        if (subconjunto.count(no->id)) nos_sub.push_back(no);
+    }
+    uf.make_set(nos_sub);
 
     Grafo* agm = new Grafo(false, true, false);
-    unordered_map<char, No*> mapa_agm;
-    for (auto* no : lista_adj) {
+    for (auto* no : nos_sub) {
         agm->insereNo(no->id, no->peso);
     }
 
@@ -370,10 +374,10 @@ Grafo * Grafo::arvore_geradora_minima_kruskal(vector<char> ids_nos) {
             uf.unite(edge.u, edge.v);
             agm->insereAresta(edge.u, edge.v, edge.peso);
             arestas_agm++;
-            if (arestas_agm == (int)lista_adj.size() - 1) break;
+            if (arestas_agm == (int)nos_sub.size() - 1) break;
         }
     }
-    if(arestas_agm < (int) lista_adj.size()-1){
+    if(arestas_agm < (int) nos_sub.size()-1){
         delete agm;
         return nullptr;
     }
