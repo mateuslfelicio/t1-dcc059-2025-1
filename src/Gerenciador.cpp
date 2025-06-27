@@ -54,8 +54,11 @@ void Gerenciador::comandos(Grafo* grafo) {
                 cout << "Caminho mínimo não encontrado." << endl;
                 break;
             }
-            for(char id : caminho_minimo_dijkstra) {
-                cout << id << "";
+
+            for(size_t i = 0; i < caminho_minimo_dijkstra.size(); ++i) {
+                cout << caminho_minimo_dijkstra[i];
+                if(i != caminho_minimo_dijkstra.size() - 1)
+                    cout << ",";
             }
             cout << endl << endl;
 
@@ -66,8 +69,12 @@ void Gerenciador::comandos(Grafo* grafo) {
                     cerr << "Erro ao abrir o arquivo: caminho_minimo_dijkstra.txt" << endl;
                     break;
                 }
-                for(char id : caminho_minimo_dijkstra) {
-                    arquivo << id << ",";
+
+                
+                for(size_t i = 0; i < caminho_minimo_dijkstra.size(); ++i) {
+                    arquivo << caminho_minimo_dijkstra[i];
+                    if(i != caminho_minimo_dijkstra.size() - 1)
+                        arquivo << ",";
                 }
                 arquivo << endl;
                 cout<< "Caminho mínimo gravado em caminho_minimo_dijkstra.txt" << endl;
@@ -87,8 +94,11 @@ void Gerenciador::comandos(Grafo* grafo) {
                 cout << "Caminho mínimo não encontrado." << endl;
                 break;
             }
-            for(char id : caminho_minimo_floyd) {
-                cout << id << "";
+            
+            for(size_t i = 0; i < caminho_minimo_floyd.size(); ++i) {
+                cout << caminho_minimo_floyd[i];
+                if(i != caminho_minimo_floyd.size() - 1)
+                    cout << ",";
             }
             cout << endl << endl;
 
@@ -99,8 +109,11 @@ void Gerenciador::comandos(Grafo* grafo) {
                     cerr << "Erro ao abrir o arquivo: caminho_minimo_floyd.txt" << endl;
                     break;
                 }
-                for(char id : caminho_minimo_floyd) {
-                    arquivo << id << ",";
+
+                for(size_t i = 0; i < caminho_minimo_floyd.size(); ++i) {
+                    arquivo << caminho_minimo_floyd[i];
+                    if(i != caminho_minimo_floyd.size() - 1)
+                        arquivo << ",";
                 }
                 arquivo << endl;
                 cout<< "Caminho mínimo gravado em caminho_minimo_floyd.txt" << endl;
