@@ -181,7 +181,10 @@ void Gerenciador::comandos(Grafo* grafo) {
             */
             int raio, diametro;
             vector<char> centro, periferia;
-            grafo->temporaria(raio, diametro, centro, periferia);
+            raio = grafo->raio();
+            diametro = grafo->diametro();
+            centro = grafo->centro();
+            periferia = grafo->periferia();
 
             if(centro.empty() && periferia.empty()) {
                 cout<<"Grafo vazio ou sem conexao"<<endl;
