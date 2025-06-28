@@ -178,15 +178,11 @@ vector<char> Grafo::fecho_transitivo_direto(char id_no) {
     set<char> visitados;
     vector<No*> vizinhos; 
 
-    No* no_inicial = nullptr;
-    for (No* no : lista_adj) {
-        if (no->id == id_no) {
-            no_inicial = no;
-            break;
-        }
-    }
-    if (!no_inicial) return fecho;
+    // Colocar o codigo dentro de um if(in_direcionado) caso faça diferença
 
+    No* no_inicial = buscar_no(id_no);
+    if (!no_inicial) return fecho;
+    
     vizinhos.push_back(no_inicial);
     visitados.insert(id_no);
 
@@ -200,12 +196,7 @@ vector<char> Grafo::fecho_transitivo_direto(char id_no) {
                 fecho.push_back(vizinho_id);
                 visitados.insert(vizinho_id);
                 
-                for (No* no : lista_adj) {
-                    if (no->id == vizinho_id) {
-                        vizinhos.push_back(no);
-                        break;
-                    }
-                }
+                vizinhos.push_back(buscar_no(vizinho_id));
             }
         }
     }
@@ -213,8 +204,33 @@ vector<char> Grafo::fecho_transitivo_direto(char id_no) {
 }
 
 vector<char> Grafo::fecho_transitivo_indireto(char id_no) {
-    cout<<"Metodo nao implementado"<<endl;
-    return {};
+    vector<char> fecho;
+    set<char> visitados;
+    vector<No*> alvos;
+
+    // Colocar o codigo dentro de um if(in_direcionado) caso faça diferença
+    
+    No* no_inicial = buscar_no(id_no);
+    if (!no_inicial) return fecho;
+
+    alvos.push_back(no_inicial);
+    visitados.insert(id_no);
+
+    while (!alvos.empty()) {
+        No* atual = alvos.back();
+        alvos.pop_back();
+
+        for (No* no : lista_adj) {
+            for (Aresta* aresta : no->arestas) {
+                if (aresta->id_no_alvo == atual->id && visitados.find(no->id) == visitados.end()) {
+                    fecho.push_back(no->id);
+                    visitados.insert(no->id);
+                    alvos.push_back(no);
+                }
+            }
+        }
+    }
+    return fecho;
 }
 
 
@@ -375,16 +391,9 @@ Grafo * Grafo::arvore_caminhamento_profundidade(char id_no) {
     set<char> visitados;
     vector<pair<char, char>> arestas_retorno;
 
-    No* inicial = nullptr;
-    for (No* no : lista_adj) {
-        if (no->id == id_no) {
-            inicial = no;
-            break;
-        }
-    }
-    if (inicial==nullptr) {
-        return arvore;
-    }
+    No* inicial = buscar_no(id_no);
+    if (!inicial) return arvore;
+
     arvore_dfs(inicial, arvore, visitados, 0, arestas_retorno);
     return arvore;
 }
