@@ -174,8 +174,42 @@ void Grafo::insereAresta(char id_no_origem, char id_no_destino, int peso) {
 }
 
 vector<char> Grafo::fecho_transitivo_direto(char id_no) {
-    cout<<"Metodo nao implementado"<<endl;
-    return {};
+    vector<char> fecho;
+    set<char> visitados;
+    vector<No*> vizinhos; 
+
+    No* no_inicial = nullptr;
+    for (No* no : lista_adj) {
+        if (no->id == id_no) {
+            no_inicial = no;
+            break;
+        }
+    }
+    if (!no_inicial) return fecho;
+
+    vizinhos.push_back(no_inicial);
+    visitados.insert(id_no);
+
+    while (!vizinhos.empty()) {
+        No* atual = vizinhos.back();
+        vizinhos.pop_back();
+
+        for (Aresta* aresta : atual->arestas) {
+            char vizinho_id = aresta->id_no_alvo;
+            if (visitados.find(vizinho_id) == visitados.end()) {
+                fecho.push_back(vizinho_id);
+                visitados.insert(vizinho_id);
+                
+                for (No* no : lista_adj) {
+                    if (no->id == vizinho_id) {
+                        vizinhos.push_back(no);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return fecho;
 }
 
 vector<char> Grafo::fecho_transitivo_indireto(char id_no) {
