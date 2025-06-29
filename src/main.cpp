@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 
     Grafo* grafo = new Grafo(direcionado, ponderado_aresta, ponderado_vertice, vertices, arestas);
     grafo->gravar("../saida/grafo.txt");
-
+    grafo->print();
     Gerenciador::comandos(grafo);
 
     return 0;
