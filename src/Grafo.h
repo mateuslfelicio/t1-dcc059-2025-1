@@ -9,6 +9,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <set>
 #include <queue>
 #include <algorithm>
 #include <map>
@@ -36,12 +37,13 @@ public:
     Grafo* arvore_geradora_minima_prim(vector<char> ids_nos); // e
     Grafo* arvore_geradora_minima_kruskal(vector<char> ids_nos); // f
     Grafo* arvore_caminhamento_profundidade(char id_no); // g
-    int raio(); // h 1
+    void arvore_dfs(No *atual, Grafo *arvore, set<char> &visitados, char pai, vector<pair<char, char>> &arestas_retorno);
+    int raio();     // h 1
     int diametro(); // h 2
     vector<char> centro(); // h 3
     vector<char> periferia(); // h 4
     vector<char> vertices_de_articulacao(); // i
-
+    No *buscar_no(char id);
 
     bool atualizado;
     int raio_;

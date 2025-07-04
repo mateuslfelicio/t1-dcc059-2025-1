@@ -1,7 +1,11 @@
 #include "Grafo.h"
-
+#include <unordered_map>
+#include <unordered_set>
+#include <queue>
+#include <tuple>
+#include <algorithm>
+#include "ConjuntoDisj.h"
 using namespace std;
-
 
 /***
  * @brief Construtor da classe Grafo
@@ -231,13 +235,63 @@ void Grafo::atualizaInfo() {
 }
 
 vector<char> Grafo::fecho_transitivo_direto(char id_no) {
-    cout<<"Metodo nao implementado"<<endl;
-    return {};
+    vector<char> fecho;
+    set<char> visitados;
+    vector<No*> vizinhos; 
+
+    // Colocar o codigo dentro de um if(in_direcionado) caso faça diferença
+
+    No* no_inicial = buscar_no(id_no);
+    if (!no_inicial) return fecho;
+    
+    vizinhos.push_back(no_inicial);
+    visitados.insert(id_no);
+
+    while (!vizinhos.empty()) {
+        No* atual = vizinhos.back();
+        vizinhos.pop_back();
+
+        for (Aresta* aresta : atual->arestas) {
+            char vizinho_id = aresta->id_no_alvo;
+            if (visitados.find(vizinho_id) == visitados.end()) {
+                fecho.push_back(vizinho_id);
+                visitados.insert(vizinho_id);
+                
+                vizinhos.push_back(buscar_no(vizinho_id));
+            }
+        }
+    }
+    return fecho;
 }
 
 vector<char> Grafo::fecho_transitivo_indireto(char id_no) {
-    cout<<"Metodo nao implementado"<<endl;
-    return {};
+    vector<char> fecho;
+    set<char> visitados;
+    vector<No*> alvos;
+
+    // Colocar o codigo dentro de um if(in_direcionado) caso faça diferença
+    
+    No* no_inicial = buscar_no(id_no);
+    if (!no_inicial) return fecho;
+
+    alvos.push_back(no_inicial);
+    visitados.insert(id_no);
+
+    while (!alvos.empty()) {
+        No* atual = alvos.back();
+        alvos.pop_back();
+
+        for (No* no : lista_adj) {
+            for (Aresta* aresta : no->arestas) {
+                if (aresta->id_no_alvo == atual->id && visitados.find(no->id) == visitados.end()) {
+                    fecho.push_back(no->id);
+                    visitados.insert(no->id);
+                    alvos.push_back(no);
+                }
+            }
+        }
+    }
+    return fecho;
 }
 
 
@@ -393,19 +447,172 @@ void Grafo::floyd(vector<vector<int>> &distancias, vector<vector<char>> &anteces
 
 }
 
-Grafo * Grafo::arvore_geradora_minima_prim(vector<char> ids_nos) {
-    cout<<"Metodo nao implementado"<<endl;
+No* Grafo::buscar_no(char id) {
+    for (auto* no : lista_adj) {
+        if (no->id == id) return no;
+    }
     return nullptr;
 }
 
+/**
+ * @brief Gera a Árvore Geradora Mínima (AGM) usando o algoritmo de Prim.
+ * @param ids_nos Vetor com os identificadores dos nós do subconjunto a ser considerado.
+ * @return Ponteiro para um novo objeto Grafo representando a AGM.
+ */
+Grafo * Grafo::arvore_geradora_minima_prim(vector<char> ids_nos) {
+    unordered_set<char> subconjunto(ids_nos.begin(), ids_nos.end());
+    unordered_map<char, bool> visitado;
+    for(auto id : ids_nos){
+        visitado[id] = false;
+    }
+
+    using ArestaInfo = tuple<int, char, char>;
+    priority_queue<ArestaInfo, vector<ArestaInfo>, greater<ArestaInfo>> fila;
+
+    Grafo* ArvoreGer = new Grafo(false, true, false);
+
+    char id_inicial = ids_nos[0];
+    visitado[id_inicial] = true;
+
+    unordered_map<char, No*> mapa_agm;
+
+    No* novo_no = new No(id_inicial);
+    ArvoreGer->lista_adj.push_back(novo_no);
+    mapa_agm[id_inicial] = novo_no;
+
+    No* no_atual = buscar_no(id_inicial);
+
+    if(no_atual){
+        for (Aresta* aresta : no_atual->arestas) {
+            if (subconjunto.count(aresta->id_no_alvo))
+                fila.push(make_tuple(aresta->peso, no_atual->id, aresta->id_no_alvo));
+        }
+    }
+
+    while (!fila.empty()) {
+        auto aresta = fila.top();
+        fila.pop();
+        int peso = get<0>(aresta);
+        char origem = get<1>(aresta);
+        char destino = get<2>(aresta);
+
+        if (visitado[destino]) continue;
+        visitado[destino] = true;
+
+        if (!mapa_agm.count(destino)) {
+            ArvoreGer->insereNo(destino, 0);
+            mapa_agm[destino] = ArvoreGer->buscar_no(destino);
+        }
+        ArvoreGer->insereAresta(origem, destino, peso);
+
+        No* no_destino = buscar_no(destino);
+
+        for (Aresta* aresta : no_destino->arestas) {
+            if (!visitado[aresta->id_no_alvo] && subconjunto.count(aresta->id_no_alvo)) {
+                fila.push(make_tuple(aresta->peso, destino, aresta->id_no_alvo));
+            }
+        }
+    }
+
+    if(ArvoreGer->lista_adj.size()<ids_nos.size()){
+        delete ArvoreGer;
+        return nullptr;
+    }
+
+    return ArvoreGer;
+}
+
+/**
+ * @brief Gera a Árvore Geradora Mínima (AGM) usando o algoritmo de Kruskal.
+ * @param ids_nos Vetor com os identificadores dos nós do subconjunto a ser considerado.
+ * @return Ponteiro para um novo objeto Grafo representando a AGM.
+ */
 Grafo * Grafo::arvore_geradora_minima_kruskal(vector<char> ids_nos) {
-    cout<<"Metodo nao implementado"<<endl;
-    return nullptr;
+    unordered_set<char> subconjunto(ids_nos.begin(), ids_nos.end());
+    struct Edge { int peso; char u, v; };
+    vector<Edge> arestas;
+    unordered_set<string> inseridas;
+    for (auto* no : lista_adj) {
+        if (!subconjunto.count(no->id)) continue;
+        for (auto* aresta : no->arestas) {
+            if (!subconjunto.count(aresta->id_no_alvo)) continue;
+            string chave = string() + min(no->id, aresta->id_no_alvo) + max(no->id, aresta->id_no_alvo);
+            if (!inseridas.count(chave)) {
+                arestas.push_back({aresta->peso, no->id, aresta->id_no_alvo});
+                inseridas.insert(chave);
+            }
+        }
+    }
+
+    sort(arestas.begin(), arestas.end(), [](const Edge& a, const Edge& b) {
+        return a.peso < b.peso;
+    });
+
+    ConjuntoDisj uf;
+    vector<No*> nos_sub;
+    for (auto* no : lista_adj) {
+        if (subconjunto.count(no->id)) nos_sub.push_back(no);
+    }
+    uf.make_set(nos_sub);
+
+    Grafo* agm = new Grafo(false, true, false);
+    for (auto* no : nos_sub) {
+        agm->insereNo(no->id, no->peso);
+    }
+
+    int arestas_agm = 0;
+    for (const auto& edge : arestas) {
+        if (uf.find(edge.u) != uf.find(edge.v)) {
+            uf.unite(edge.u, edge.v);
+            agm->insereAresta(edge.u, edge.v, edge.peso);
+            arestas_agm++;
+            if (arestas_agm == (int)nos_sub.size() - 1) break;
+        }
+    }
+    if(arestas_agm < (int) nos_sub.size()-1){
+        delete agm;
+        return nullptr;
+    }
+    return agm;
+
 }
 
 Grafo * Grafo::arvore_caminhamento_profundidade(char id_no) {
-    cout<<"Metodo nao implementado"<<endl;
-    return nullptr;
+    Grafo* arvore = new Grafo(1, in_ponderado_aresta, in_ponderado_vertice, {}, {});
+    set<char> visitados;
+    vector<pair<char, char>> arestas_retorno;
+
+    No* inicial = buscar_no(id_no);
+    if (!inicial) return arvore;
+
+    arvore_dfs(inicial, arvore, visitados, 0, arestas_retorno);
+    return arvore;
+}
+
+void Grafo::arvore_dfs(No* atual, Grafo* arvore, set<char>& visitados, char pai, vector<pair<char, char>>& arestas_retorno) {
+    visitados.insert(atual->id);
+    arvore->insereNo(atual->id, atual->peso);
+
+    for (Aresta* aresta : atual->arestas) {
+        if (aresta->id_no_alvo != pai){ // Não volta para o no pai
+            No* vizinho = nullptr;
+            for (No* no : lista_adj) {
+                if (no->id == aresta->id_no_alvo) {
+                    vizinho = no;
+                    break;
+                }
+            }
+            if (!vizinho) continue;
+            if (visitados.find(vizinho->id) == visitados.end()) {
+                arvore->insereNo(vizinho->id, vizinho->peso);
+                arvore->insereAresta(atual->id, vizinho->id, aresta->peso);
+                arvore_dfs(vizinho, arvore, visitados, atual->id, arestas_retorno);
+            } else {
+                // Aresta de retorno
+                arestas_retorno.push_back({atual->id, vizinho->id});
+            }
+        }
+    }
 }
 
 /***
