@@ -40,8 +40,12 @@ public:
     int diametro(); // h 2
     vector<char> centro(); // h 3
     vector<char> periferia(); // h 4
+<<<<<<< HEAD
     vector<char> vertices_de_articulacao(); // i
     No *buscar_no(char id);
+=======
+
+>>>>>>> ef52c1cddc26c7911331207886027fb6a2fbb0a9
 
     int ordem;
     bool in_direcionado;
