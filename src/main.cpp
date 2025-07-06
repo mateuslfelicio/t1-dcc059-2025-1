@@ -53,9 +53,6 @@ void ler_arquivo( const string& nome_arquivo, bool& direcionado,
 using namespace std;
 int main(int argc, char *argv[])
 {
-   /* vector<string> vertices = {"A", "B", "C", "D"};
-    vector<string> arestas = {"AB1", "AC2", "BD3", "CD4"};    
-    Grafo* grafo = new Grafo(0,1,0, vertices, arestas);*/
     if(argc < 2){
         cout << "Uso: " << argv[0] << " <arquivo_instancia>" << endl;
         return 1;

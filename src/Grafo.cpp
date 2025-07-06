@@ -492,3 +492,8 @@ vector<char> Grafo::periferia() {
     cout<<"Metodo nao implementado"<<endl;
     return {};
 }
+
+vector<char> Grafo::vertices_de_articulacao() {
+    cout<<"Metodo nao implementado"<<endl;
+    return {};
+}
