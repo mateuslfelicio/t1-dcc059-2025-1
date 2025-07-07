@@ -239,7 +239,7 @@ vector<char> Grafo::fecho_transitivo_direto(char id_no) {
     set<char> visitados;
     vector<No*> vizinhos; 
 
-    // Colocar o codigo dentro de um if(in_direcionado) caso faça diferença
+    if(!in_direcionado) return fecho;
 
     No* no_inicial = buscar_no(id_no);
     if (!no_inicial) return fecho;
@@ -269,7 +269,7 @@ vector<char> Grafo::fecho_transitivo_indireto(char id_no) {
     set<char> visitados;
     vector<No*> alvos;
 
-    // Colocar o codigo dentro de um if(in_direcionado) caso faça diferença
+    if(!in_direcionado) return fecho;
     
     No* no_inicial = buscar_no(id_no);
     if (!no_inicial) return fecho;

@@ -21,12 +21,38 @@ void Gerenciador::comandos(Grafo* grafo) {
 
             char id_no = get_id_entrada();
             vector<char> fecho_transitivo_direto = grafo->fecho_transitivo_direto(id_no);
-            cout<<"Metodo de impressao em tela nao implementado"<<endl<<endl;
 
-            if(pergunta_imprimir_arquivo("fecho_trans_dir.txt")) {
-                cout<<"Metodo de impressao em arquivo nao implementado"<<endl<<endl;
+            if(fecho_transitivo_direto.empty()) {
+                cout << "Fecho transitivo direto vazio." << endl << endl;
+            } else {
+                for(size_t i = 0; i < fecho_transitivo_direto.size(); ++i) {
+                    cout << fecho_transitivo_direto[i];
+                    if(i != fecho_transitivo_direto.size() - 1)
+                        cout << ",";
+                }
+                cout << endl << endl;
             }
 
+            if(pergunta_imprimir_arquivo("fecho_trans_dir.txt")) {
+                fstream arquivo;
+                arquivo.open("fecho_trans_dir.txt", ios::out);
+                if(!arquivo.is_open()) {
+                    cerr << "Erro ao abrir o arquivo: fecho_trans_dir.txt" << endl;
+                    break;
+                }
+                if(fecho_transitivo_direto.empty()) {
+                    arquivo << "Fecho transitivo direto vazio." << endl;
+                } else {
+                    for(size_t i = 0; i < fecho_transitivo_direto.size(); ++i) {
+                        arquivo << fecho_transitivo_direto[i];
+                        if(i != fecho_transitivo_direto.size() - 1)
+                            arquivo << ",";
+                    }
+                    arquivo << endl;
+                    cout << "Fecho transitivo direto gravado em fecho_trans_dir.txt" << endl;
+                }
+                arquivo.close();
+            }
 
             break;
         }
@@ -35,12 +61,38 @@ void Gerenciador::comandos(Grafo* grafo) {
 
             char id_no = get_id_entrada();
             vector<char> fecho_transitivo_indireto = grafo->fecho_transitivo_indireto(id_no);
-            cout<<"Metodo de impressao em tela nao implementado"<<endl<<endl;
 
-            if(pergunta_imprimir_arquivo("fecho_trans_indir.txt")) {
-                cout<<"Metodo de impressao em arquivo nao implementado"<<endl;
+            if(fecho_transitivo_indireto.empty()) {
+                cout << "Fecho transitivo indireto vazio." << endl << endl;
+            } else {
+                for(size_t i = 0; i < fecho_transitivo_indireto.size(); ++i) {
+                    cout << fecho_transitivo_indireto[i];
+                    if(i != fecho_transitivo_indireto.size() - 1)
+                        cout << ",";
+                }
+                cout << endl << endl;
             }
 
+            if(pergunta_imprimir_arquivo("fecho_trans_indir.txt")) {
+                fstream arquivo;
+                arquivo.open("fecho_trans_indir.txt", ios::out);
+                if(!arquivo.is_open()) {
+                    cerr << "Erro ao abrir o arquivo: fecho_trans_indir.txt" << endl;
+                    break;
+                }
+                if(fecho_transitivo_indireto.empty()) {
+                    arquivo << "Fecho transitivo indireto vazio." << endl;
+                } else {
+                    for(size_t i = 0; i < fecho_transitivo_indireto.size(); ++i) {
+                        arquivo << fecho_transitivo_indireto[i];
+                        if(i != fecho_transitivo_indireto.size() - 1)
+                            arquivo << ",";
+                    }
+                    arquivo << endl;
+                    cout << "Fecho transitivo indireto gravado em fecho_trans_indir.txt" << endl;
+                }
+                arquivo.close();
+            }
 
             break;
         }
@@ -137,9 +189,9 @@ void Gerenciador::comandos(Grafo* grafo) {
                     cout << endl;
                     break;
                 } else{
-                cout << "Arvore Geradora Minima (Prim):" << endl;
-                arvore_geradora_minima_prim->print();
-                cout << endl;
+                    cout << "Arvore Geradora Minima (Prim):" << endl;
+                    arvore_geradora_minima_prim->print();
+                    cout << endl;
                 }
                 if (pergunta_imprimir_arquivo("agm_prim.txt")) {
                     arvore_geradora_minima_prim->gravar("agm_prim.txt");
@@ -202,10 +254,7 @@ void Gerenciador::comandos(Grafo* grafo) {
         }
 
         case 'h': {
-            /*
-            vector<char> articulacao = grafo->vertices_de_articulacao();
-            cout<<"Metodo de impressao em tela nao implementado"<<endl<<endl;
-            */
+            
             int raio, diametro;
             vector<char> centro, periferia;
             raio = grafo->raio();
