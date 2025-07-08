@@ -35,7 +35,7 @@ void Gerenciador::comandos(Grafo* grafo) {
 
             if(pergunta_imprimir_arquivo("fecho_trans_dir.txt")) {
                 fstream arquivo;
-                arquivo.open("fecho_trans_dir.txt", ios::out);
+                arquivo.open("./saida/fecho_trans_dir.txt", ios::out);
                 if(!arquivo.is_open()) {
                     cerr << "Erro ao abrir o arquivo: fecho_trans_dir.txt" << endl;
                     break;
@@ -75,7 +75,7 @@ void Gerenciador::comandos(Grafo* grafo) {
 
             if(pergunta_imprimir_arquivo("fecho_trans_indir.txt")) {
                 fstream arquivo;
-                arquivo.open("fecho_trans_indir.txt", ios::out);
+                arquivo.open("./saida/fecho_trans_indir.txt", ios::out);
                 if(!arquivo.is_open()) {
                     cerr << "Erro ao abrir o arquivo: fecho_trans_indir.txt" << endl;
                     break;
@@ -116,7 +116,7 @@ void Gerenciador::comandos(Grafo* grafo) {
 
             if(pergunta_imprimir_arquivo("caminho_minimo_dijkstra.txt")) {
                 fstream arquivo;
-                arquivo.open("caminho_minimo_dijkstra.txt", ios::out);
+                arquivo.open("./saida/caminho_minimo_dijkstra.txt", ios::out);
                 if(!arquivo.is_open()) {
                     cerr << "Erro ao abrir o arquivo: caminho_minimo_dijkstra.txt" << endl;
                     break;
@@ -156,7 +156,7 @@ void Gerenciador::comandos(Grafo* grafo) {
 
             if(pergunta_imprimir_arquivo("caminho_minimo_floyd.txt")) {
                 fstream arquivo;
-                arquivo.open("caminho_minimo_floyd.txt", ios::out);
+                arquivo.open("./saida/caminho_minimo_floyd.txt", ios::out);
                 if(!arquivo.is_open()) {
                     cerr << "Erro ao abrir o arquivo: caminho_minimo_floyd.txt" << endl;
                     break;
@@ -285,7 +285,7 @@ void Gerenciador::comandos(Grafo* grafo) {
             }
             if(pergunta_imprimir_arquivo("arvore_caminhamento_profundidade.txt")) {
                 fstream arquivo;
-                arquivo.open("raio_diametro.txt", ios::out);
+                arquivo.open("./saida/raio_diametro.txt", ios::out);
                 if(!arquivo.is_open()) {
                     cerr << "Erro ao abrir o arquivo: raio_diametro.txt" << endl;
                     break;

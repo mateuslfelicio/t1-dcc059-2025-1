@@ -101,7 +101,7 @@ void Grafo::print() {
  */
 void Grafo::gravar(string nome_arquivo) {
     fstream arquivo;
-    arquivo.open(nome_arquivo, ios::out);
+    arquivo.open("./saida/"+ nome_arquivo, ios::out);
     if(!arquivo.is_open()) {
         cout << "Erro ao abrir o arquivo: " << nome_arquivo << endl;
         return;
