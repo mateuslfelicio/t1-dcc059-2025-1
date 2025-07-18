@@ -17,45 +17,23 @@ using namespace std;
  */
 Grafo::Grafo(bool direcionado, bool ponderadoAresta, bool ponderadoVertice, vector<string> vertices, vector<string> arestas) {
     ordem = 0;
+
     atualizado = false;
     raio_ = INF;
     diametro_ = 0;
     centro_ = {};
     periferia_ = {};
+
     in_direcionado = direcionado;
     in_ponderado_aresta = ponderadoAresta;
     in_ponderado_vertice = ponderadoVertice;
-    for(string vertice : vertices) {
-        No *no = new No(vertice[0], (in_ponderado_vertice ? stoi(vertice.substr(1)) : 0));
-        lista_adj.push_back(no);
-        ordem++;
-    }
 
-    for(string aresta: arestas){
-        char id_no_origem = aresta[0];
-        char id_no_destino = aresta[1];
-        int peso = (in_ponderado_aresta ? stoi(aresta.substr(2)) : 0);
+    for(string vertice : vertices)
+        this->insereNo(vertice[0], (in_ponderado_vertice ? stoi(vertice.substr(1)) : 0));
 
-        No *no_origem = nullptr;
-        No *no_destino = nullptr;
+    for(string aresta: arestas)
+        this->insereAresta(aresta[0], aresta[1], (in_ponderado_aresta ? stoi(aresta.substr(2)) : 0));
 
-        for(No *no : lista_adj) {
-            if(no->id == id_no_origem) {
-                no_origem = no;
-            } else if(no->id == id_no_destino) {
-                no_destino = no;
-            }
-        }
-
-        if(no_origem && no_destino) {
-            Aresta *aresta_obj = new Aresta(id_no_destino, peso);
-            no_origem->arestas.push_back(aresta_obj);
-            if(!direcionado) {
-                Aresta *aresta_obj_inversa = new Aresta(id_no_origem, peso);
-                no_destino->arestas.push_back(aresta_obj_inversa);
-            }
-        }
-    }
 }
 
 /***
@@ -132,7 +110,7 @@ void Grafo::gravar(string nome_arquivo) {
  * @brief Insere um novo nó (vértice) no grafo
  * @param id_no Identificador do nó a ser inserido
  * @param peso Peso do nó, se o grafo for ponderado
- *  @note Se o nó já existir, não será inserido novamente
+ * @note Se o nó já existir, não será inserido novamente
  */
 void Grafo::insereNo(char id_no, int peso) {
     for(No *no : lista_adj) {
@@ -145,6 +123,7 @@ void Grafo::insereNo(char id_no, int peso) {
     lista_adj.push_back(novo_no);
 
     atualizado = false;
+    index[id_no] = ordem;
     ordem++;
 }
 
@@ -237,7 +216,7 @@ void Grafo::atualizaInfo() {
 vector<char> Grafo::fecho_transitivo_direto(char id_no) {
     vector<char> fecho;
     set<char> visitados;
-    vector<No*> vizinhos; 
+    vector<No*> vizinhos;
 
     if(!in_direcionado) return fecho;
 
@@ -293,7 +272,6 @@ vector<char> Grafo::fecho_transitivo_indireto(char id_no) {
     }
     return fecho;
 }
-
 
 /***
  * @brief Calcula o caminho mínimo entre dois nós usando o algoritmo de Dijkstra
@@ -359,7 +337,6 @@ vector<char> Grafo::caminho_minimo_dijkstra(char id_no_a, char id_no_b) {
     return caminho;
 }
 
-
 /***
  * @brief Calcula o caminho mínimo entre dois nós usando o algoritmo de Floyd-Warshall
  * @param id_no Identificador do nó de origem
@@ -372,11 +349,9 @@ vector<char> Grafo::caminho_minimo_floyd(char id_no, char id_no_b) {
     vector<vector<char>> antecessores(ordem, vector<char>(ordem, '\0'));
     floyd(distancias, antecessores);
 
-    map<char, int> id_to_index;
     map<int, char> index_to_id;
     int i = 0, c1 = -1, c2 = -1;
     for(No *no : lista_adj) {
-        id_to_index[no->id] = i;
         index_to_id[i] = no->id;
         if(no->id == id_no)
             c1 = i;
@@ -384,6 +359,7 @@ vector<char> Grafo::caminho_minimo_floyd(char id_no, char id_no_b) {
             c2 = i;
         i++;
     }
+
     if(c1 == -1 || c2 == -1 || distancias[c1][c2] == INF)
         return {};
 
@@ -394,13 +370,12 @@ vector<char> Grafo::caminho_minimo_floyd(char id_no, char id_no_b) {
         char ant = antecessores[c1][atual];
         if(ant == '\0')
             return {};
-        atual = id_to_index[ant];
+        atual = this->buscar_no(ant)->id;
     }
     caminho.push_back(index_to_id[c1]);
     reverse(caminho.begin(), caminho.end());
     return caminho;
 }
-
 
 /***
  * @brief Implementa o algoritmo de Floyd-Warshall para calcular as distâncias entre todos os pares de nós
@@ -447,11 +422,15 @@ void Grafo::floyd(vector<vector<int>> &distancias, vector<vector<char>> &anteces
 
 }
 
+/***
+ * @brief Busca um nó pelo seu identificador
+ * @param id Identificador do nó a ser buscado
+ * @return Ponteiro para o nó encontrado ou nullptr caso contrário
+ */
 No* Grafo::buscar_no(char id) {
-    for (auto* no : lista_adj) {
-        if (no->id == id) return no;
-    }
-    return nullptr;
+    if(index.find(id) == index.end())
+        return nullptr;
+    return lista_adj[index[id]];
 }
 
 /**
