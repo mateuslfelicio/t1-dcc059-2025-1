@@ -22,14 +22,19 @@ class Grafo {
 public:
     Grafo(bool direcionado = false, bool ponderadoAresta = false, bool ponderadoVertice = false, vector<string> vertices = {}, vector<string> arestas = {});
     ~Grafo();
-
+    //funções auxiliares
+    //t1
     void print();
     void insereNo(char id_no, int peso = 0);
     void insereAresta(char id_no_origem, char id_no_destino, int peso = 0);
     void gravar(string nome_arquivo);
     void floyd(vector<vector<int>> &distancias, vector<vector<char>> &antecessores);
     void atualizaInfo();
+    No *buscar_no(char id);
+    //t2
 
+    //funções principais
+    //t1
     vector<char> fecho_transitivo_direto(char id_no); // a
     vector<char> fecho_transitivo_indireto(char id_no); // b
     vector<char> caminho_minimo_dijkstra(char id_no_a, char id_no_b); // c
@@ -43,8 +48,10 @@ public:
     vector<char> centro(); // h 3
     vector<char> periferia(); // h 4
     vector<char> vertices_de_articulacao(); // i
-    No *buscar_no(char id);
+    //t2
 
+    //atributos
+    //t1
     bool atualizado;
     int raio_;
     int diametro_;
@@ -55,6 +62,7 @@ public:
     bool in_ponderado_aresta;
     bool in_ponderado_vertice;
     vector<No*> lista_adj;
+    //t2
     map<char, int> index;
 };
 
