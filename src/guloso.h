@@ -2,6 +2,8 @@
 #define GULOSO_H
 
 #include "Grafo.h"
+#include "No.h"
+#include "Aresta.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -15,8 +17,11 @@ class Guloso {
     static vector<char> guloso_randomizado(Grafo* grafo);
     static vector<char> guloso_randomizado_reativo(Grafo* grafo);
 
-    static bool verifica();
-    static vector<char> heuristics();
+    static bool verifica(Grafo* grafo, vector<char> solucao);
+    static vector<char> heuristics(Grafo* grafo, vector<char> solucao = {});
+
+    static int arestas_livres(No* no, Grafo* grafo);
+    static void limpar_dominados(Grafo* grafo);
 };
 
 #endif 
