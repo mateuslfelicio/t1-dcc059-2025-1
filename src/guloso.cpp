@@ -2,26 +2,29 @@
 
 vector<char> Guloso::guloso(Grafo* grafo) {
     cout << "Método não implementado" << endl;
+    //atuzalizar o estado de dominados sempre que inserir nó a solução
     // Deixar essa função como ultima coisa antes do return
-    this.limpar_dominados(grafo);
+    limpar_dominados(grafo);
     return {};
 }
 
 vector<char> Guloso::guloso_randomizado(Grafo* grafo) {
     cout << "Método não implementado" << endl;
+    //atuzalizar o estado de dominados sempre que inserir nó a solução
     // Deixar essa função como ultima coisa antes do return
-    this.limpar_dominados(grafo);
+    limpar_dominados(grafo);
     return {};
 }
 
 vector<char> Guloso::guloso_randomizado_reativo(Grafo* grafo) {
     cout << "Método não implementado" << endl;
+    //atuzalizar o estado de dominados sempre que inserir nó a solução
     // Deixar essa função como ultima coisa antes do return
-    this.limpar_dominados(grafo);
+    limpar_dominados(grafo);
     return {};
 }
 /***
- * @brief Verrifica se a solução é valida
+ * @brief Verifica se a solução é valida
  * @param grafo Grafo a ser verificado
  * @param solucao Vetor de caracteres representando os vértices da solução
  * @return true se a solução é válida, false caso contrário
@@ -52,29 +55,21 @@ bool Guloso::verifica(Grafo* grafo, vector<char> solucao) {
  * @return Vetor de caracteres representando os vértices ordenados pela quantidade de arestas
  * @note A heurística é baseada na quantidade de arestas de cada vértice, ordenada em ordem decrescente
  */
-vector<char> Guloso::heuristics(Grafo* grafo, vector) {
+vector<char> Guloso::heuristics(Grafo* grafo) {
     vector<pair<char, int>> pares;
-
-    //atualiza nos dominados
-    for(No* no : grafo->lista_adj) {
-        if(no->dominado)
-            for(Aresta* aresta : no->arestas) {
-                No* alvo = grafo->buscar_no(aresta->id_no_alvo);
-                if(alvo && !alvo->dominado) {
-                    alvo->dominado = true;
-                }
-            }
-    }
     
+    // Calcula a  quantidade de vértices afetados por cada nó, descartando os já dominados
     for(No* no : grafo->lista_adj) {
         if(no->dominado) continue;
-        pares.push_back(make_pair(no->id, no->arestas.size()));
+        pares.push_back(make_pair(no->id, arestas_livres(no, grafo)));
     }
     
+    // Ordena os pares pela quantidade de arestas em ordem decrescente
     sort(pares.begin(), pares.end(), [](const pair<char,int>& a, const pair<char,int>& b) {
         return a.second > b.second;
     });
 
+    // Cria um vetor de caracteres ordenados
     vector<char> ordenados;
     for(pair<char,int> par: pares) {
         ordenados.push_back(par.first);
@@ -94,7 +89,8 @@ vector<char> Guloso::heuristics(Grafo* grafo, vector) {
 int Guloso::arestas_livres(No* no, Grafo* grafo) {
     int livres = 0;
     for(Aresta* aresta : no->arestas) {
-        if(!grafo.buscar_no(aresta->id_no_alvo)->dominado)
+        No* dest = grafo->buscar_no(aresta->id_no_alvo);
+        if(dest && !dest->dominado)
             livres++;
     }
     return livres;

@@ -18,7 +18,7 @@ class Guloso {
     static vector<char> guloso_randomizado_reativo(Grafo* grafo);
 
     static bool verifica(Grafo* grafo, vector<char> solucao);
-    static vector<char> heuristics(Grafo* grafo, vector<char> solucao = {});
+    static vector<char> heuristics(Grafo* grafo);
 
     static int arestas_livres(No* no, Grafo* grafo);
     static void limpar_dominados(Grafo* grafo);
