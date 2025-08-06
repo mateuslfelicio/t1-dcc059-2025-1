@@ -1,11 +1,37 @@
 #include "guloso.h"
 
 vector<char> Guloso::guloso(Grafo* grafo) {
-    cout << "Método não implementado" << endl;
+    vector<char> solucao;
+    vector<char> heuristica = heuristics(grafo);
+    if(heuristica.empty()) {
+        return {};
+    }
+    while(!heuristica.empty()) {
+        char no_id = heuristica.back();
+        heuristica.pop_back();
+        No* no = grafo->buscar_no(no_id);
+        if(!no || no->dominado) continue;
+
+        solucao.push_back(no_id);
+        no->dominado = true;
+
+        //atualiza os vértices vizinhos como dominados
+        for(Aresta* aresta: no->arestas) {
+            No* alvo = grafo->buscar_no(aresta->id_no_alvo);
+            if(alvo) {
+                alvo->dominado = true;
+            }
+        }
+        heuristica = heuristics(grafo);
+    }
     //atuzalizar o estado de dominados sempre que inserir nó a solução
     // Deixar essa função como ultima coisa antes do return
+    if(!verifica(grafo, solucao)){
+        cout << "Solução Inválida" << endl;
+        return {};
+    }
     limpar_dominados(grafo);
-    return {};
+    return solucao;
 }
 
 vector<char> Guloso::guloso_randomizado(Grafo* grafo) {
