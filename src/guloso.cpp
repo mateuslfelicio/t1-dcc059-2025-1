@@ -56,26 +56,26 @@ bool Guloso::verifica(Grafo* grafo, vector<char> solucao) {
  * @note A heurística é baseada na quantidade de arestas de cada vértice, ordenada em ordem decrescente
  */
 vector<char> Guloso::heuristics(Grafo* grafo) {
-    vector<pair<char, int>> pares;
+    vector<pair<char, int>> parNoAresta;
     
     // Calcula a  quantidade de vértices afetados por cada nó, descartando os já dominados
     for(No* no : grafo->lista_adj) {
         if(no->dominado) continue;
-        pares.push_back(make_pair(no->id, arestas_livres(no, grafo)));
+        parNoAresta.push_back(make_pair(no->id, arestas_livres(no, grafo)));
     }
     
-    // Ordena os pares pela quantidade de arestas em ordem decrescente
-    sort(pares.begin(), pares.end(), [](const pair<char,int>& a, const pair<char,int>& b) {
+    // Ordena os parNoAresta pela quantidade de arestas em ordem decrescente
+    sort(parNoAresta.begin(), parNoAresta.end(), [](const pair<char,int>& a, const pair<char,int>& b) {
         return a.second > b.second;
     });
 
     // Cria um vetor de caracteres ordenados
-    vector<char> ordenados;
-    for(pair<char,int> par: pares) {
-        ordenados.push_back(par.first);
+    vector<char> noArestaOrdenado;
+    for(pair<char,int> par: parNoAresta) {
+        noArestaOrdenado.push_back(par.first);
     }
 
-    return ordenados;
+    return noArestaOrdenado;
 }
 
 
@@ -87,13 +87,13 @@ vector<char> Guloso::heuristics(Grafo* grafo) {
  * @note Uma aresta é considerada livre se o nó de destino não está dominado
  */
 int Guloso::arestas_livres(No* no, Grafo* grafo) {
-    int livres = 0;
+    int arestasLivres = 0;
     for(Aresta* aresta : no->arestas) {
         No* dest = grafo->buscar_no(aresta->id_no_alvo);
         if(dest && !dest->dominado)
-            livres++;
+            arestasLivres++;
     }
-    return livres;
+    return arestasLivres;
 }
 
 
