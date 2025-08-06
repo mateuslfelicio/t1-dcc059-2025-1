@@ -3,21 +3,21 @@
 vector<char> Guloso::guloso(Grafo* grafo) {
     cout << "Método não implementado" << endl;
     // Deixar essa função como ultima coisa antes do return
-    this.limpar_dominados(grafo);
+    limpar_dominados(grafo);
     return {};
 }
 
 vector<char> Guloso::guloso_randomizado(Grafo* grafo) {
     cout << "Método não implementado" << endl;
     // Deixar essa função como ultima coisa antes do return
-    this.limpar_dominados(grafo);
+    limpar_dominados(grafo);
     return {};
 }
 
 vector<char> Guloso::guloso_randomizado_reativo(Grafo* grafo) {
     cout << "Método não implementado" << endl;
     // Deixar essa função como ultima coisa antes do return
-    this.limpar_dominados(grafo);
+    limpar_dominados(grafo);
     return {};
 }
 /***
@@ -52,7 +52,7 @@ bool Guloso::verifica(Grafo* grafo, vector<char> solucao) {
  * @return Vetor de caracteres representando os vértices ordenados pela quantidade de arestas
  * @note A heurística é baseada na quantidade de arestas de cada vértice, ordenada em ordem decrescente
  */
-vector<char> Guloso::heuristics(Grafo* grafo, vector) {
+vector<char> Guloso::heuristics(Grafo* grafo) {
     vector<pair<char, int>> pares;
 
     //atualiza nos dominados
@@ -94,7 +94,7 @@ vector<char> Guloso::heuristics(Grafo* grafo, vector) {
 int Guloso::arestas_livres(No* no, Grafo* grafo) {
     int livres = 0;
     for(Aresta* aresta : no->arestas) {
-        if(!grafo.buscar_no(aresta->id_no_alvo)->dominado)
+        if(!grafo->buscar_no(aresta->id_no_alvo)->dominado)
             livres++;
     }
     return livres;
