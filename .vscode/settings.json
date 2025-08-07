@@ -45,7 +45,12 @@
     "streambuf": "cpp",
     "typeinfo": "cpp",
     "list": "cpp",
-    "set": "cpp"
+    "set": "cpp",
+    "unordered_set": "cpp",
+    "chrono": "cpp",
+    "ctime": "cpp",
+    "ratio": "cpp",
+    "iomanip": "cpp"
   },
   "C_Cpp_Runner.cCompilerPath": "gcc",
   "C_Cpp_Runner.cppCompilerPath": "g++",

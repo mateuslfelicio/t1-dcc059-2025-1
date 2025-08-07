@@ -1,4 +1,8 @@
 #include "guloso.h"
+#include <chrono>
+#include <iomanip>
+
+using namespace std;
 
 vector<char> Guloso::guloso(Grafo* grafo) {
     vector<char> solucao;
@@ -42,13 +46,81 @@ vector<char> Guloso::guloso_randomizado(Grafo* grafo) {
     return {};
 }
 
-vector<char> Guloso::guloso_randomizado_reativo(Grafo* grafo) {
-    cout << "Método não implementado" << endl;
-    //atuzalizar o estado de dominados sempre que inserir nó a solução
-    // Deixar essa função como ultima coisa antes do return
-    limpar_dominados(grafo);
-    return {};
+vector<char> Guloso::guloso_randomizado_reativo(Grafo* grafo, double alpha, mt19937& rng) {
+    Guloso::limpar_dominados(grafo);
+    vector<char> solucao;
+    set<char> dominados;
+    int n = grafo->lista_adj.size();
+
+    while ((int)dominados.size() < n) {
+        // Usa heuristics para obter candidatos ordenados
+        vector<char> candidatos = Guloso::heuristics(grafo);
+
+        // Filtra candidatos válidos (não dominados, não adjacentes à solução)
+        vector<pair<char, int>> candidatos_cobertura;
+        int melhorCobertura = -1;
+        for (char v_id : candidatos) {
+            if (dominados.count(v_id)) continue;
+            if (find(solucao.begin(), solucao.end(), v_id) != solucao.end()) continue;
+
+            No* v = grafo->buscar_no(v_id);
+            bool vizinho_na_solucao = false;
+            for (Aresta* a : v->arestas) {
+                if (find(solucao.begin(), solucao.end(), a->id_no_alvo) != solucao.end()) {
+                    vizinho_na_solucao = true;
+                    break;
+                }
+            }
+            if (vizinho_na_solucao) continue;
+
+            // Conta cobertura: v + vizinhos ainda não dominados
+            int cobertura = 0;
+            if (!dominados.count(v->id)) cobertura++;
+            for (Aresta* a : v->arestas) {
+                if (!dominados.count(a->id_no_alvo)) cobertura++;
+            }
+            if (cobertura > melhorCobertura) melhorCobertura = cobertura;
+            candidatos_cobertura.push_back({v_id, cobertura});
+        }
+
+        // Monta LCR (top alpha%)
+        vector<char> LCR;
+        for (auto& par : candidatos_cobertura) {
+            if (par.second >= melhorCobertura - int(alpha * melhorCobertura)) {
+                LCR.push_back(par.first);
+            }
+        }
+        if (LCR.empty()) break;
+
+        int lcr_size = std::max(1, int(std::ceil(LCR.size() * alpha)));
+        if (LCR.size() > 1 && lcr_size < 2) lcr_size = 2;
+        if (lcr_size > (int)LCR.size()) lcr_size = LCR.size();
+        shuffle(LCR.begin(), LCR.end(), rng);
+
+        // Escolhe aleatoriamente um da LCR
+        uniform_int_distribution<int> dist(0, LCR.size() - 1);
+        char escolhido_id = LCR[dist(rng)];
+        solucao.push_back(escolhido_id);
+
+        // Marca escolhido e vizinhos como dominados
+        dominados.insert(escolhido_id);
+        grafo->buscar_no(escolhido_id)->dominado = true;
+        No* escolhido = grafo->buscar_no(escolhido_id);
+        for (Aresta* a : escolhido->arestas) {
+            dominados.insert(a->id_no_alvo);
+            grafo->buscar_no(a->id_no_alvo)->dominado = true;
+        }
+    }
+
+    if (!Guloso::verifica(grafo, solucao)) {
+        cout << "Solução Inválida" << endl;
+        Guloso::limpar_dominados(grafo);
+        return {};
+    }
+    Guloso::limpar_dominados(grafo);
+    return solucao;
 }
+
 /***
  * @brief Verifica se a solução é valida
  * @param grafo Grafo a ser verificado
@@ -72,7 +144,6 @@ bool Guloso::verifica(Grafo* grafo, vector<char> solucao) {
     }
     return true;
 }
-
 
 /***
  * @brief Gera uma heurística baseada nos vértices do grafo

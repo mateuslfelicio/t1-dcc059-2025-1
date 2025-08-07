@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <random>
 
 using namespace std;
 
@@ -15,8 +16,7 @@ class Guloso {
     public:
     static vector<char> guloso(Grafo* grafo);
     static vector<char> guloso_randomizado(Grafo* grafo);
-    static vector<char> guloso_randomizado_reativo(Grafo* grafo);
-
+    static vector<char> guloso_randomizado_reativo(Grafo* grafo, double alpha, mt19937& rng);
     static bool verifica(Grafo* grafo, vector<char> solucao);
     static vector<char> heuristics(Grafo* grafo);
 
