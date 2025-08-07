@@ -101,15 +101,6 @@ void Gerenciador::comandos(Grafo* grafo) {
                 break;
             }
 
-            for(size_t i = 0; i < caminho_minimo_dijkstra.size(); ++i) {
-                cout << caminho_minimo_dijkstra[i];
-                if(i != caminho_minimo_dijkstra.size() - 1)
-                    cout << ",";
-            if(caminho_minimo_dijkstra.empty()) {
-                cout << "Caminho mínimo não encontrado." << endl;
-                break;
-            }
-
             print_vector(caminho_minimo_dijkstra);
             cout << endl << endl;
 
@@ -141,17 +132,6 @@ void Gerenciador::comandos(Grafo* grafo) {
             char id_no_1 = get_id_entrada();
             char id_no_2 = get_id_entrada();
             vector<char> caminho_minimo_floyd = grafo->caminho_minimo_floyd(id_no_1,id_no_2);
-            if(caminho_minimo_floyd.empty()) {
-                cout << "Caminho mínimo não encontrado." << endl;
-                break;
-            }
-            
-            for(size_t i = 0; i < caminho_minimo_floyd.size(); ++i) {
-                cout << caminho_minimo_floyd[i];
-                if(i != caminho_minimo_floyd.size() - 1)
-                    cout << ",";
-            }
-            cout << endl << endl;
             if(caminho_minimo_floyd.empty()) {
                 cout << "Caminho mínimo não encontrado." << endl;
                 break;
