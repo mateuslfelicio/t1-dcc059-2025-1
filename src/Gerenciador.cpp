@@ -12,6 +12,9 @@ void Gerenciador::comandos(Grafo* grafo) {
     cout<<"(f) Arvore Geradora Minima (Algoritmo de Kruskal);"<<endl;
     cout<<"(g) Arvore de caminhamento em profundidade;"<<endl;
     cout<<"(h) Raio, diametro, centro e periferia do grafo;"<<endl;
+    cout<<"(i) Guloso;"<<endl;
+    cout<<"(j) Guloso Randomizado;"<<endl;
+    cout<<"(k) Guloso Randomizado Reativo;"<<endl;
     cout<<"(0) Sair;"<<endl<<endl;
 
     char resp;
@@ -25,11 +28,7 @@ void Gerenciador::comandos(Grafo* grafo) {
             if(fecho_transitivo_direto.empty()) {
                 cout << "Fecho transitivo direto vazio." << endl << endl;
             } else {
-                for(size_t i = 0; i < fecho_transitivo_direto.size(); ++i) {
-                    cout << fecho_transitivo_direto[i];
-                    if(i != fecho_transitivo_direto.size() - 1)
-                        cout << ",";
-                }
+                print_vector(fecho_transitivo_direto);
                 cout << endl << endl;
             }
 
@@ -65,12 +64,7 @@ void Gerenciador::comandos(Grafo* grafo) {
             if(fecho_transitivo_indireto.empty()) {
                 cout << "Fecho transitivo indireto vazio." << endl << endl;
             } else {
-                for(size_t i = 0; i < fecho_transitivo_indireto.size(); ++i) {
-                    cout << fecho_transitivo_indireto[i];
-                    if(i != fecho_transitivo_indireto.size() - 1)
-                        cout << ",";
-                }
-                cout << endl << endl;
+                print_vector(fecho_transitivo_indireto);
             }
 
             if(pergunta_imprimir_arquivo("fecho_trans_indir.txt")) {
@@ -111,7 +105,12 @@ void Gerenciador::comandos(Grafo* grafo) {
                 cout << caminho_minimo_dijkstra[i];
                 if(i != caminho_minimo_dijkstra.size() - 1)
                     cout << ",";
+            if(caminho_minimo_dijkstra.empty()) {
+                cout << "Caminho mínimo não encontrado." << endl;
+                break;
             }
+
+            print_vector(caminho_minimo_dijkstra);
             cout << endl << endl;
 
             if(pergunta_imprimir_arquivo("caminho_minimo_dijkstra.txt")) {
@@ -152,6 +151,13 @@ void Gerenciador::comandos(Grafo* grafo) {
                 if(i != caminho_minimo_floyd.size() - 1)
                     cout << ",";
             }
+            cout << endl << endl;
+            if(caminho_minimo_floyd.empty()) {
+                cout << "Caminho mínimo não encontrado." << endl;
+                break;
+            }
+            
+            print_vector(caminho_minimo_floyd);
             cout << endl << endl;
 
             if(pergunta_imprimir_arquivo("caminho_minimo_floyd.txt")) {
@@ -318,6 +324,40 @@ void Gerenciador::comandos(Grafo* grafo) {
             break;
         }
 
+        case 'i' : {
+            vector<char> guloso = Guloso::guloso(grafo);
+            if(guloso.empty()) {
+                cout << "Guloso vazio." << endl;
+            }
+            else {
+                print_vector(guloso);
+            }
+            break;
+        }
+
+        case 'j' : {
+            vector<char> guloso = Guloso::guloso_randomizado(grafo);
+            if(guloso.empty()) {
+                cout << "Guloso Randomizado vazio." << endl;
+            }
+            else {
+                print_vector(guloso);
+            }
+            break;
+        }
+
+        case 'k' : {
+            vector<char> guloso = Guloso::guloso_randomizado_reativo(grafo);
+            if(guloso.empty()) {
+                cout << "Guloso Randomizado Reativo vazio." << endl;
+            }
+            else {
+                print_vector(guloso);
+            }
+            break;
+        }
+
+
         case '0': {
             exit(0);
         }
@@ -364,6 +404,15 @@ vector<char> Gerenciador::get_conjunto_ids(Grafo *grafo, int tam) {
     }
 
     return ids;
+}
+
+void Gerenciador::print_vector(vector<char> vetor) {
+    for(size_t i = 0; i < vetor.size(); ++i) {
+        cout << vetor[i];
+        if(i != vetor.size() - 1)
+            cout << ",";
+    }
+    cout << endl << endl;
 }
 
 
