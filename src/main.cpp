@@ -62,8 +62,7 @@ int main(int argc, char *argv[])
     ler_arquivo(argv[1], direcionado, ponderado_aresta, ponderado_vertice, vertices, arestas);
 
     Grafo* grafo = new Grafo(direcionado, ponderado_aresta, ponderado_vertice, vertices, arestas);
-    grafo->gravar("../saida/grafo.txt");
-    grafo->print();
+    
     Gerenciador::comandos(grafo);
 
     return 0;

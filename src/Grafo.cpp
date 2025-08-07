@@ -17,6 +17,11 @@ using namespace std;
  */
 Grafo::Grafo(bool direcionado, bool ponderadoAresta, bool ponderadoVertice, vector<string> vertices, vector<string> arestas) {
     ordem = 0;
+    atualizado = false;
+    raio_ = INF;
+    diametro_ = 0;
+    centro_ = {};
+    periferia_ = {};
     in_direcionado = direcionado;
     in_ponderado_aresta = ponderadoAresta;
     in_ponderado_vertice = ponderadoVertice;
@@ -70,21 +75,20 @@ Grafo::~Grafo() {
 /***
  * @brief Imprime o grafo na forma de sua lista de adjacência
  */
-void Grafo::print(){
+void Grafo::print() {
     if(lista_adj.empty()) {
         cout << "Grafo vazio." << endl;
         return;
     }
     for(No *no : lista_adj) {
-        cout << no->id;
-        if(in_ponderado_vertice) {
-            cout << "(" << no->peso << ")";
-        }
+        cout << no->id << ":";
+        bool primeiro = true;
         for(Aresta *aresta : no->arestas) {
-            cout << " -> ";
-            cout << aresta->id_no_alvo;
-            if(in_ponderado_aresta) {
-                cout << "(" << aresta->peso << ")";
+            if (primeiro) {
+                cout << " " << aresta->id_no_alvo;
+                primeiro = false;
+            } else {
+                cout << " -> " << aresta->id_no_alvo;
             }
         }
         cout << endl;
@@ -97,31 +101,30 @@ void Grafo::print(){
  */
 void Grafo::gravar(string nome_arquivo) {
     fstream arquivo;
-    arquivo.open(nome_arquivo, ios::out);
+    arquivo.open("./saida/"+ nome_arquivo, ios::out);
     if(!arquivo.is_open()) {
-        cerr << "Erro ao abrir o arquivo: " << nome_arquivo << endl;
+        cout << "Erro ao abrir o arquivo: " << nome_arquivo << endl;
         return;
     }
-    arquivo << in_direcionado << " "
-            << in_ponderado_aresta << " "
-            << in_ponderado_vertice << endl;
-    arquivo << ordem;
+    arquivo << "Direcionado: "<< in_direcionado << endl
+            << "Ponderado nos vertices:" << in_ponderado_aresta << endl
+            << "Ponderado nas arestas" << in_ponderado_vertice << endl;
+    arquivo << "Ordem: " << ordem << endl;
+    arquivo << "Lista de adjacencia:" << endl;
     for(No *no : lista_adj) {
-        arquivo << endl << no->id;
-        if(in_ponderado_vertice) {
-            arquivo << " " << no->peso;
-        }
-    }
-    for(No *no : lista_adj) {
+        arquivo << no->id << ":";
+        bool primeiro = true;
         for(Aresta *aresta : no->arestas) {
-            if(!in_direcionado && (no->id > aresta->id_no_alvo))
-                continue;
-            arquivo << endl << no->id << " " << aresta->id_no_alvo;
-            if(in_ponderado_aresta) {
-                arquivo << " " << aresta->peso;
+            if (primeiro) {
+                arquivo << " " << aresta->id_no_alvo;
+                primeiro = false;
+            } else {
+                arquivo << " -> " << aresta->id_no_alvo;
             }
         }
+        arquivo << endl;
     }
+    cout << "Grafo gravado em " << nome_arquivo << endl;
     arquivo.close();
 }
 
@@ -129,6 +132,7 @@ void Grafo::gravar(string nome_arquivo) {
  * @brief Insere um novo nó (vértice) no grafo
  * @param id_no Identificador do nó a ser inserido
  * @param peso Peso do nó, se o grafo for ponderado
+ *  @note Se o nó já existir, não será inserido novamente
  */
 void Grafo::insereNo(char id_no, int peso) {
     for(No *no : lista_adj) {
@@ -136,8 +140,11 @@ void Grafo::insereNo(char id_no, int peso) {
             return;
         }
     }
+    
     No *novo_no = new No(id_no, peso);
     lista_adj.push_back(novo_no);
+
+    atualizado = false;
     ordem++;
 }
 
@@ -146,6 +153,8 @@ void Grafo::insereNo(char id_no, int peso) {
  * @param id_no_origem Identificador do nó de origem
  * @param id_no_destino Identificador do nó de destino
  * @param peso Peso da aresta, se o grafo for ponderado
+ * @note se ambos os nós não existirem, a aresta não será inserida
+ * @note se a aresta já existir, não será inserida novamente
  */
 void Grafo::insereAresta(char id_no_origem, char id_no_destino, int peso) {
     No *no_origem = nullptr;
@@ -173,6 +182,56 @@ void Grafo::insereAresta(char id_no_origem, char id_no_destino, int peso) {
         Aresta *aresta_inversa = new Aresta(id_no_origem, peso);
         no_destino->arestas.push_back(aresta_inversa);
     }
+
+    atualizado = false;
+}
+
+/***
+ * @brief Atualiza as informações do grafo, como raio, diâmetro, centro e periferia
+ */
+void Grafo::atualizaInfo() {
+
+    raio_ = INF;
+    diametro_ = 0;
+    
+    vector<vector<int>> distancias(ordem, vector<int>(ordem, INF));
+    vector<vector<char>> antecessores(ordem, vector<char>(ordem, '\0'));
+    
+    floyd(distancias, antecessores);
+
+    map<char, int> excentricidade;
+
+    for(int i = 0; i < ordem; i++) {
+        for(int j = 0; j < ordem; j++) {
+            excentricidade[lista_adj[i]->id] = max(excentricidade[lista_adj[i]->id], distancias[i][j]);
+            if(distancias[i][j] != INF) {
+                if(i == j) continue;
+
+                if(distancias[i][j] > diametro_) {
+                    diametro_ = distancias[i][j];
+                }
+                if(distancias[i][j] < raio_) {
+                    raio_ = distancias[i][j];
+                }
+            }
+        }
+    }
+
+    if(raio_ == INF and diametro_ == 0){
+        atualizado = true;
+        return;
+    }
+
+    for(int i = 0; i < ordem; i++) {
+        if(excentricidade[lista_adj[i]->id] == raio_) {
+            centro_.push_back(lista_adj[i]->id);
+        }
+        if(excentricidade[lista_adj[i]->id] == diametro_) {
+            periferia_.push_back(lista_adj[i]->id);
+        }
+    }
+
+    atualizado = true;
 }
 
 vector<char> Grafo::fecho_transitivo_direto(char id_no) {
@@ -180,7 +239,7 @@ vector<char> Grafo::fecho_transitivo_direto(char id_no) {
     set<char> visitados;
     vector<No*> vizinhos; 
 
-    // Colocar o codigo dentro de um if(in_direcionado) caso faça diferença
+    if(!in_direcionado) return fecho;
 
     No* no_inicial = buscar_no(id_no);
     if (!no_inicial) return fecho;
@@ -210,7 +269,7 @@ vector<char> Grafo::fecho_transitivo_indireto(char id_no) {
     set<char> visitados;
     vector<No*> alvos;
 
-    // Colocar o codigo dentro de um if(in_direcionado) caso faça diferença
+    if(!in_direcionado) return fecho;
     
     No* no_inicial = buscar_no(id_no);
     if (!no_inicial) return fecho;
@@ -300,9 +359,92 @@ vector<char> Grafo::caminho_minimo_dijkstra(char id_no_a, char id_no_b) {
     return caminho;
 }
 
+
+/***
+ * @brief Calcula o caminho mínimo entre dois nós usando o algoritmo de Floyd-Warshall
+ * @param id_no Identificador do nó de origem
+ * @param id_no_b Identificador do nó de destino
+ * @return Vetor de caracteres representando o caminho mínimo
+ * @note Se não houver caminho entre os nós, retorna um vetor vazio
+ */
 vector<char> Grafo::caminho_minimo_floyd(char id_no, char id_no_b) {
-    cout<<"Metodo nao implementado"<<endl;
-    return {};
+    vector<vector<int>> distancias(ordem, vector<int>(ordem, INF));
+    vector<vector<char>> antecessores(ordem, vector<char>(ordem, '\0'));
+    floyd(distancias, antecessores);
+
+    map<char, int> id_to_index;
+    map<int, char> index_to_id;
+    int i = 0, c1 = -1, c2 = -1;
+    for(No *no : lista_adj) {
+        id_to_index[no->id] = i;
+        index_to_id[i] = no->id;
+        if(no->id == id_no)
+            c1 = i;
+        if(no->id == id_no_b)
+            c2 = i;
+        i++;
+    }
+    if(c1 == -1 || c2 == -1 || distancias[c1][c2] == INF)
+        return {};
+
+    vector<char> caminho;
+    int atual = c2;
+    while(atual != c1) {
+        caminho.push_back(index_to_id[atual]);
+        char ant = antecessores[c1][atual];
+        if(ant == '\0')
+            return {};
+        atual = id_to_index[ant];
+    }
+    caminho.push_back(index_to_id[c1]);
+    reverse(caminho.begin(), caminho.end());
+    return caminho;
+}
+
+
+/***
+ * @brief Implementa o algoritmo de Floyd-Warshall para calcular as distâncias entre todos os pares de nós
+ * @param distancias Matriz onde serão armazenadas as distâncias entre os nós
+ * @param antecessores Matriz onde serão armazenados os antecessores de cada nó no caminho mínimo
+ */
+void Grafo::floyd(vector<vector<int>> &distancias, vector<vector<char>> &antecessores) {
+    int n = ordem;
+
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < n; j++) {
+            if(i == j) {
+                distancias[i][j] = 0;
+                antecessores[i][j] = '\0';
+            } else {
+                distancias[i][j] = INF;
+                antecessores[i][j] = '\0';
+            }
+        }
+    }
+
+    for(int i = 0; i < n; i++) {
+        No *no = lista_adj[i];
+        for(Aresta *aresta : no->arestas) {
+            int j = 0;
+            while(j < n && lista_adj[j]->id != aresta->id_no_alvo) j++;
+            if(j < n) {
+                distancias[i][j] = aresta->peso;
+                antecessores[i][j] = no->id;
+            }
+        }
+    }
+
+    for(int k = 0; k < n; k++) {
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < n; j++) {
+                if(distancias[i][j] > distancias[i][k] + distancias[k][j]) {
+                    distancias[i][j] = distancias[i][k] + distancias[k][j];
+                    antecessores[i][j] = antecessores[k][j];
+                }
+            }
+        }
+    }
+
 }
 
 No* Grafo::buscar_no(char id) {
@@ -473,24 +615,45 @@ void Grafo::arvore_dfs(No* atual, Grafo* arvore, set<char>& visitados, char pai,
     }
 }
 
+/***
+ * @brief Retorna o raio do grafo
+ * @note Caso o grafo seja vazio retorna INF
+ * @note INF = 1000000000
+ */
 int Grafo::raio() {
-    cout<<"Metodo nao implementado"<<endl;
-    return 0;
+    if(!atualizado)
+        atualizaInfo();
+    return raio_;
 }
 
+/***
+ * @brief Retorna o diâmetro do grafo
+ * @note Caso o grafo seja vazio retorna 0
+ */
 int Grafo::diametro() {
-    cout<<"Metodo nao implementado"<<endl;
-    return 0;
+    if(!atualizado)
+        atualizaInfo();
+    return diametro_;
 }
 
+/***
+ * @brief Retorna o centro do grafo
+ * @note Caso o grafo seja vazio retorna um vetor vazio
+ */
 vector<char> Grafo::centro() {
-    cout<<"Metodo nao implementado"<<endl;
-    return {};
+    if(!atualizado)
+        atualizaInfo();
+    return centro_;
 }
 
+/***
+ * @brief Retorna a periferia do grafo
+ * @note Caso o grafo seja vazio retorna um vetor vazio
+ */
 vector<char> Grafo::periferia() {
-    cout<<"Metodo nao implementado"<<endl;
-    return {};
+    if(!atualizado)
+        atualizaInfo();
+    return periferia_;
 }
 
 vector<char> Grafo::vertices_de_articulacao() {
