@@ -72,7 +72,7 @@ vector<char> Guloso::guloso_randomizado(Grafo* grafo, double alpha, mt19937& rng
         shuffle(LCR.begin(), LCR.end(), rng);
         if ((int)LCR.size() > lcr_size) LCR.resize(lcr_size);
 
-        // Escolhe aleatoriamente um da LCR
+        // Escolhe aleatoriamente um candidato da LCR
         uniform_int_distribution<int> dist(0, LCR.size() - 1);
         char escolhido_id = LCR[dist(rng)];
         solucao.push_back(escolhido_id);

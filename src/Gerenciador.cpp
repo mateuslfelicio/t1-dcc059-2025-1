@@ -316,12 +316,26 @@ void Gerenciador::comandos(Grafo* grafo) {
         }
 
         case 'j' : {
-            vector<char> guloso = Guloso::guloso_randomizado(grafo);
-            if(guloso.empty()) {
-                cout << "Guloso Randomizado vazio." << endl;
+            vector<double> alphas = {0.05, 0.10, 0.15, 0.30, 0.50};
+            cout << "Escolha um valor de alpha:" << endl;
+            for (size_t i = 0; i < alphas.size(); ++i) {
+                cout << (i+1) << ") " << alphas[i] << endl;
+            }
+            int escolha = 0;
+            do {
+                cout << "Digite o numero correspondente ao alpha desejado: ";
+                cin >> escolha;
+            }while (escolha < 1 || escolha > (int)alphas.size());
+            double alpha = alphas[escolha-1];
+
+            mt19937 rng(random_device{}());
+            vector<char> sol = Guloso::guloso_randomizado(grafo, alpha, rng);
+
+            if(sol.empty()) {
+                cout << "Solução vazia." << endl;
             }
             else {
-                print_vector(guloso);
+                print_vector(sol);
             }
             break;
         }
