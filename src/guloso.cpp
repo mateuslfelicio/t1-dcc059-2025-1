@@ -38,12 +38,63 @@ vector<char> Guloso::guloso(Grafo* grafo) {
     return solucao;
 }
 
-vector<char> Guloso::guloso_randomizado(Grafo* grafo) {
-    cout << "Método não implementado" << endl;
-    //atuzalizar o estado de dominados sempre que inserir nó a solução
+vector<char> Guloso::guloso_randomizado(Grafo* grafo, double alpha, mt19937& rng) {
+    Guloso::limpar_dominados(grafo);
+    vector<char> solucao;
+    set<char> dominados;
+    int n = grafo->lista_adj.size();
+
+    while ((int)dominados.size() < n) {
+        // Recebe os candidatos ordenados pela heurística
+        vector<char> candidatos = Guloso::heuristics(grafo);
+
+        // Filtra candidatos válidos (não dominados, não adjacentes à solução)
+        vector<char> candidatos_validos;
+        for (char id : candidatos) {
+            if (dominados.count(id)) continue;
+            No* no = grafo->buscar_no(id);
+            bool adjacente = false;
+            for (Aresta* a : no->arestas) {
+                if (find(solucao.begin(), solucao.end(), a->id_no_alvo) != solucao.end()) {
+                    adjacente = true;
+                    break;
+                }
+            }
+            if (!adjacente) {
+                candidatos_validos.push_back(id);
+            }
+        }
+        if (candidatos_validos.empty()) break;
+
+        // Monta LCR (top alpha% dos melhores candidatos)
+        int lcr_size = std::max(1, int(std::ceil(candidatos_validos.size() * alpha)));
+        vector<char> LCR = candidatos_validos;
+        shuffle(LCR.begin(), LCR.end(), rng);
+        if ((int)LCR.size() > lcr_size) LCR.resize(lcr_size);
+
+        // Escolhe aleatoriamente um da LCR
+        uniform_int_distribution<int> dist(0, LCR.size() - 1);
+        char escolhido_id = LCR[dist(rng)];
+        solucao.push_back(escolhido_id);
+
+        // Marca escolhido e vizinhos como dominados
+        dominados.insert(escolhido_id);
+        grafo->buscar_no(escolhido_id)->dominado = true;
+        No* escolhido = grafo->buscar_no(escolhido_id);
+        for (Aresta* a : escolhido->arestas) {
+            dominados.insert(a->id_no_alvo);
+            grafo->buscar_no(a->id_no_alvo)->dominado = true;
+        }
+    }
+
+    if (!Guloso::verifica(grafo, solucao)) {
+        cout << "Solução Inválida" << endl;
+        Guloso::limpar_dominados(grafo);
+        return {};
+    }
     // Deixar essa função como ultima coisa antes do return
-    limpar_dominados(grafo);
-    return {};
+    Guloso::limpar_dominados(grafo);
+    return solucao;
 }
 
 vector<char> Guloso::guloso_randomizado_reativo(Grafo* grafo, double alpha, mt19937& rng) {
