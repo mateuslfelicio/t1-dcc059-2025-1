@@ -312,6 +312,23 @@ void Gerenciador::comandos(Grafo* grafo) {
             else {
                 print_vector(guloso);
             }
+            if(pergunta_imprimir_arquivo("guloso.txt")) {
+                fstream arquivo;
+                    arquivo.open("./saida/guloso.txt", ios::out);
+                    if(!arquivo.is_open()) {
+                        cerr << "Erro ao abrir o arquivo: guloso.txt" << endl;
+                        break;
+                    }
+
+                    for(size_t i = 0; i < guloso.size(); ++i) {
+                        arquivo << guloso[i];
+                        if(i != guloso.size() - 1)
+                            arquivo << ",";
+                    }
+                    arquivo << endl;
+                    cout<< "Caminho mínimo gravado em guloso.txt" << endl;
+                    arquivo.close();
+            }
             break;
         }
 
@@ -329,13 +346,30 @@ void Gerenciador::comandos(Grafo* grafo) {
             double alpha = alphas[escolha-1];
 
             mt19937 rng(random_device{}());
-            vector<char> sol = Guloso::guloso_randomizado(grafo, alpha, rng);
+            vector<char> guloso_randomizado = Guloso::guloso_randomizado(grafo, alpha, rng);
 
-            if(sol.empty()) {
+            if(guloso_randomizado.empty()) {
                 cout << "Solução vazia." << endl;
             }
             else {
-                print_vector(sol);
+                print_vector(guloso_randomizado);
+            }
+            if(pergunta_imprimir_arquivo("guloso_randomizado.txt")) {
+                fstream arquivo;
+                    arquivo.open("./saida/guloso_randomizado.txt", ios::out);
+                    if(!arquivo.is_open()) {
+                        cerr << "Erro ao abrir o arquivo: guloso_randomizado.txt" << endl;
+                        break;
+                    }
+
+                    for(size_t i = 0; i < guloso_randomizado.size(); ++i) {
+                        arquivo << guloso_randomizado[i];
+                        if(i != guloso_randomizado.size() - 1)
+                            arquivo << ",";
+                    }
+                    arquivo << endl;
+                    cout<< "Caminho mínimo gravado em guloso_randomizado.txt" << endl;
+                    arquivo.close();
             }
             break;
         }
@@ -354,12 +388,30 @@ void Gerenciador::comandos(Grafo* grafo) {
             double alpha = alphas[escolha-1];
         
             mt19937 rng(random_device{}());
-            vector<char> sol = Guloso::guloso_randomizado_reativo(grafo, alpha, rng);
+            vector<char> guloso_randomizado_reativo = Guloso::guloso_randomizado_reativo(grafo, alpha, rng);
         
-            if(sol.empty()) {
+            if(guloso_randomizado_reativo.empty()) {
                 cout << "Solução vazia." << endl;
-            } else {
-                print_vector(sol);
+            }
+            else {
+                print_vector(guloso_randomizado_reativo);
+            }
+            if(pergunta_imprimir_arquivo("guloso_randomizado_reativo.txt")) {
+                fstream arquivo;
+                    arquivo.open("./saida/guloso_randomizado_reativo.txt", ios::out);
+                    if(!arquivo.is_open()) {
+                        cerr << "Erro ao abrir o arquivo: guloso_randomizado_reativo.txt" << endl;
+                        break;
+                    }
+
+                    for(size_t i = 0; i < guloso_randomizado_reativo.size(); ++i) {
+                        arquivo << guloso_randomizado_reativo[i];
+                        if(i != guloso_randomizado_reativo.size() - 1)
+                            arquivo << ",";
+                    }
+                    arquivo << endl;
+                    cout<< "Caminho mínimo gravado em guloso_randomizado_reativo.txt" << endl;
+                    arquivo.close();
             }
             break;
         }
