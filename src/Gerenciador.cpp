@@ -1,6 +1,6 @@
 #include "Gerenciador.h"
 #include <fstream>
-
+#include <chrono>
 
 void Gerenciador::comandos(Grafo* grafo) {
     cout<<"Digite uma das opcoes abaixo e pressione enter:"<<endl<<endl;
@@ -327,12 +327,25 @@ void Gerenciador::comandos(Grafo* grafo) {
         }
 
         case 'k' : {
-            vector<char> guloso = Guloso::guloso_randomizado_reativo(grafo);
-            if(guloso.empty()) {
-                cout << "Guloso Randomizado Reativo vazio." << endl;
+            vector<double> alphas = {0.05, 0.10, 0.15, 0.30, 0.50};
+            cout << "Escolha um valor de alpha:" << endl;
+            for (size_t i = 0; i < alphas.size(); ++i) {
+                cout << (i+1) << ") " << alphas[i] << endl;
             }
-            else {
-                print_vector(guloso);
+            int escolha = 0;
+            do {
+                cout << "Digite o numero correspondente ao alpha desejado: ";
+                cin >> escolha;
+            } while (escolha < 1 || escolha > (int)alphas.size());
+            double alpha = alphas[escolha-1];
+        
+            mt19937 rng(random_device{}());
+            vector<char> sol = Guloso::guloso_randomizado_reativo(grafo, alpha, rng);
+        
+            if(sol.empty()) {
+                cout << "Solução vazia." << endl;
+            } else {
+                print_vector(sol);
             }
             break;
         }
