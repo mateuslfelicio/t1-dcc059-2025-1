@@ -306,6 +306,7 @@ void Gerenciador::comandos(Grafo* grafo) {
 
         case 'i' : {
             vector<char> guloso;
+            double soma = 0;
             for(int i = 0; i < 10; i++){
                 auto inicio = std::chrono::high_resolution_clock::now(); // Inicia o timer
 
@@ -314,6 +315,8 @@ void Gerenciador::comandos(Grafo* grafo) {
                 auto fim = std::chrono::high_resolution_clock::now(); // Finaliza o timer
                 auto duracao = std::chrono::duration_cast<std::chrono::milliseconds>(fim - inicio).count();
                 cout << "Tempo de execução (" << i+1 << "): " << duracao << " milissegundos" << endl; // Exibe
+                soma += duracao;
+
                 if(guloso.empty()) {
                     cout << "Guloso vazio." << endl;
                 }
@@ -321,6 +324,8 @@ void Gerenciador::comandos(Grafo* grafo) {
                     print_vector(guloso);
                 }
             }
+            cout << "Media dos tempos: " << (soma / 10) << " milissegundos" << endl; // Media
+
             if(pergunta_imprimir_arquivo("guloso.txt")) {
                 fstream arquivo;
                     arquivo.open("./saida/guloso.txt", ios::out);
@@ -355,14 +360,35 @@ void Gerenciador::comandos(Grafo* grafo) {
             double alpha = alphas[escolha-1];
 
             mt19937 rng(random_device{}());
-            vector<char> guloso_randomizado = Guloso::guloso_randomizado(grafo, alpha, rng);
 
-            if(guloso_randomizado.empty()) {
-                cout << "Solução vazia." << endl;
+            vector<char> guloso_randomizado;
+            double soma = 0;
+            double melhor = 0;
+            for(int i =0; i<10; i++){
+                for(int i = 0; i < 30; i++) {
+                    auto inicio = std::chrono::high_resolution_clock::now(); // Inicia o timer
+                    
+                    guloso_randomizado = Guloso::guloso_randomizado(grafo, alpha, rng);
+                    
+                    auto fim = std::chrono::high_resolution_clock::now(); // Finaliza o timer
+                    auto duracao = std::chrono::duration_cast<std::chrono::milliseconds>(fim - inicio).count();
+                    
+
+                    if(duracao < melhor || melhor == 0){
+                        melhor = duracao;
+                    }
+                    if(guloso_randomizado.empty()) {
+                        cout << "Solução vazia." << endl;
+                    }
+                    else {
+                        print_vector(guloso_randomizado);
+                    }
+                }
+                cout << "Melhor tempo de execução : " << melhor << " milissegundos" << endl; // Exibe
+                soma += melhor;
             }
-            else {
-                print_vector(guloso_randomizado);
-            }
+            cout << "Media dos melhores tempos: " << (soma / 10) << " milissegundos" << endl; // Media
+
             if(pergunta_imprimir_arquivo("guloso_randomizado.txt")) {
                 fstream arquivo;
                     arquivo.open("./saida/guloso_randomizado.txt", ios::out);
@@ -385,26 +411,30 @@ void Gerenciador::comandos(Grafo* grafo) {
 
         case 'k' : {
             vector<double> alphas = {0.05, 0.10, 0.15, 0.30, 0.50};
-            cout << "Escolha um valor de alpha:" << endl;
-            for (size_t i = 0; i < alphas.size(); ++i) {
-                cout << (i+1) << ") " << alphas[i] << endl;
-            }
-            int escolha = 0;
-            do {
-                cout << "Digite o numero correspondente ao alpha desejado: ";
-                cin >> escolha;
-            } while (escolha < 1 || escolha > (int)alphas.size());
-            double alpha = alphas[escolha-1];
-        
+            int iteracoes = 300;
+            int bloco = 50;
             mt19937 rng(random_device{}());
-            vector<char> guloso_randomizado_reativo = Guloso::guloso_randomizado_reativo(grafo, alpha, rng);
-        
-            if(guloso_randomizado_reativo.empty()) {
-                cout << "Solução vazia." << endl;
+            vector<char> guloso_randomizado_reativo;
+
+            double soma = 0;
+            for(int i=0; i<10; i++){
+                auto inicio = std::chrono::high_resolution_clock::now(); // Inicia o timer
+                
+                guloso_randomizado_reativo = Guloso::guloso_randomizado_reativo(grafo, alphas, rng, iteracoes, bloco);
+                
+                auto fim = std::chrono::high_resolution_clock::now(); // Finaliza o timer
+                auto duracao = std::chrono::duration_cast<std::chrono::milliseconds>(fim - inicio).count();
+                cout << "Tempo de execução: " << duracao << " milissegundos" << endl;
+                soma += duracao;
+                if(guloso_randomizado_reativo.empty()) {
+                    cout << "Solução vazia." << endl;
+                }
+                else {
+                    print_vector(guloso_randomizado_reativo);
+                }
             }
-            else {
-                print_vector(guloso_randomizado_reativo);
-            }
+            cout << "Média dos tempos: " << (soma / 10) << " milissegundos" << endl;
+            
             if(pergunta_imprimir_arquivo("guloso_randomizado_reativo.txt")) {
                 fstream arquivo;
                     arquivo.open("./saida/guloso_randomizado_reativo.txt", ios::out);
