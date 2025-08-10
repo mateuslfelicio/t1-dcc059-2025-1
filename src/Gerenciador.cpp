@@ -305,12 +305,21 @@ void Gerenciador::comandos(Grafo* grafo) {
         }
 
         case 'i' : {
-            vector<char> guloso = Guloso::guloso(grafo);
-            if(guloso.empty()) {
-                cout << "Guloso vazio." << endl;
-            }
-            else {
-                print_vector(guloso);
+            vector<char> guloso;
+            for(int i = 0; i < 10; i++){
+                auto inicio = std::chrono::high_resolution_clock::now(); // Inicia o timer
+
+                guloso = Guloso::guloso(grafo);
+
+                auto fim = std::chrono::high_resolution_clock::now(); // Finaliza o timer
+                auto duracao = std::chrono::duration_cast<std::chrono::milliseconds>(fim - inicio).count();
+                cout << "Tempo de execução (" << i+1 << "): " << duracao << " milissegundos" << endl; // Exibe
+                if(guloso.empty()) {
+                    cout << "Guloso vazio." << endl;
+                }
+                else {
+                    print_vector(guloso);
+                }
             }
             if(pergunta_imprimir_arquivo("guloso.txt")) {
                 fstream arquivo;
