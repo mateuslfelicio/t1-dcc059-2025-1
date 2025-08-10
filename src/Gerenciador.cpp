@@ -365,7 +365,7 @@ void Gerenciador::comandos(Grafo* grafo) {
             double soma = 0;
             double melhor = 0;
             for(int i =0; i<10; i++){
-                for(int i = 0; i < 30; i++) {
+                for(int j = 0; j < 30; j++) {
                     auto inicio = std::chrono::high_resolution_clock::now(); // Inicia o timer
                     
                     guloso_randomizado = Guloso::guloso_randomizado(grafo, alpha, rng);
@@ -412,7 +412,7 @@ void Gerenciador::comandos(Grafo* grafo) {
         case 'k' : {
             vector<double> alphas = {0.05, 0.10, 0.15, 0.30, 0.50};
             int iteracoes = 300;
-            int bloco = 50;
+            int bloco = 30;
             mt19937 rng(random_device{}());
             vector<char> guloso_randomizado_reativo;
 
