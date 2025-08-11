@@ -357,7 +357,7 @@ void Gerenciador::comandos(Grafo* grafo) {
         }
 
         case 'j' : {
-            vector<double> alphas = {0.05, 0.10, 0.15, 0.30, 0.50};
+            vector<double> alphas = {0.05, 0.15, 0.50};
             cout << "Escolha um valor de alpha:" << endl;
             for (size_t i = 0; i < alphas.size(); ++i) {
                 cout << (i+1) << ") " << alphas[i] << endl;
@@ -425,7 +425,7 @@ void Gerenciador::comandos(Grafo* grafo) {
         }
 
         case 'k' : {
-            vector<double> alphas = {0.05, 0.10, 0.15, 0.30, 0.50};
+            vector<double> alphas = {0.05, 0.15, 0.50};
             int iteracoes = 300;
             int bloco = 30;
             mt19937 rng(random_device{}());
