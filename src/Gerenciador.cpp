@@ -427,7 +427,7 @@ void Gerenciador::comandos(Grafo* grafo) {
         case 'k' : {
             vector<double> alphas = {0.05, 0.15, 0.50};
             int iteracoes = 300;
-            int bloco = 30;
+            int bloco = 40;
             mt19937 rng(random_device{}());
             vector<char> guloso_randomizado_reativo;
 
