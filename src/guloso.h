@@ -15,7 +15,7 @@ using namespace std;
 class Guloso {
     public:
     static vector<char> guloso(Grafo* grafo);
-    static vector<char> guloso_randomizado(Grafo* grafo, double alpha, mt19937& rng);
+    static vector<char> guloso_randomizado(Grafo* grafo, double alpha, mt19937& rng, int iteracoes);
     static vector<char> guloso_randomizado_reativo(Grafo* grafo, const vector<double>& alphas, mt19937& rng, int iteracoes, int bloco);
     static bool verifica(Grafo* grafo, vector<char> solucao);
     static vector<char> heuristics(Grafo* grafo);

@@ -39,47 +39,48 @@ vector<char> Guloso::guloso(Grafo* grafo) {
     return solucao;
 }
 
-vector<char> Guloso::guloso_randomizado(Grafo* grafo, double alpha, mt19937& rng) {
-    Guloso::limpar_dominados(grafo);
-    vector<char> solucao;
-    set<char> dominados;
-    int n = grafo->lista_adj.size();
+vector<char> Guloso::guloso_randomizado(Grafo* grafo, double alpha, mt19937& rng, int num_iter) {
+    vector<char> melhor_solucao;
+    int melhor_custo = INT_MAX;
 
-    while ((int)dominados.size() < n) {
-        // Recebe os candidatos ordenados pela heurística
-        vector<char> candidatos = Guloso::heuristics(grafo);
+    for(int i = 0; i < num_iter; i++) {
+        vector<char> solucao;
+        set<char> dominados;
+        int n = grafo->lista_adj.size();
 
-        if (candidatos.empty()) break;
+        while ((int)dominados.size() < n) {
+            vector<char> candidatos = Guloso::heuristics(grafo);
+            if (candidatos.empty()) break;
 
-        // Monta LCR (top alpha% dos melhores candidatos)
-        int lcr_size = std::max(1, int(std::ceil(candidatos.size() * alpha)));
-        vector<char> LCR = candidatos;
-        shuffle(LCR.begin(), LCR.end(), rng);
-        if ((int)LCR.size() > lcr_size) LCR.resize(lcr_size);
+            int lcr_size = std::max(1, int(std::ceil(candidatos.size() * alpha)));
+            vector<char> LCR = candidatos;
+            shuffle(LCR.begin(), LCR.end(), rng);
+            if ((int)LCR.size() > lcr_size) LCR.resize(lcr_size);
 
-        // Escolhe aleatoriamente um candidato da LCR
-        uniform_int_distribution<int> dist(0, LCR.size() - 1);
-        char escolhido_id = LCR[dist(rng)];
-        solucao.push_back(escolhido_id);
+            uniform_int_distribution<int> dist(0, LCR.size() - 1);
+            char escolhido_id = LCR[dist(rng)];
+            solucao.push_back(escolhido_id);
 
-        // Marca escolhido e vizinhos como dominados
-        dominados.insert(escolhido_id);
-        grafo->buscar_no(escolhido_id)->dominado = true;
-        No* escolhido = grafo->buscar_no(escolhido_id);
-        for (Aresta* a : escolhido->arestas) {
-            dominados.insert(a->id_no_alvo);
-            grafo->buscar_no(a->id_no_alvo)->dominado = true;
+            dominados.insert(escolhido_id);
+            grafo->buscar_no(escolhido_id)->dominado = true;
+            No* escolhido = grafo->buscar_no(escolhido_id);
+            for (Aresta* a : escolhido->arestas) {
+                dominados.insert(a->id_no_alvo);
+                grafo->buscar_no(a->id_no_alvo)->dominado = true;
+            }
         }
+
+        if (Guloso::verifica(grafo, solucao)) {
+            // Atualiza melhor solução se encontrou uma válida menor
+            if (solucao.size() < melhor_custo) {
+                melhor_solucao = solucao;
+                melhor_custo = solucao.size();
+            }
+        }
+        Guloso::limpar_dominados(grafo);
     }
 
-    if (!Guloso::verifica(grafo, solucao)) {
-        cout << "Solução Inválida" << endl;
-        Guloso::limpar_dominados(grafo);
-        return {};
-    }
-    // Deixar essa função como ultima coisa antes do return
-    Guloso::limpar_dominados(grafo);
-    return solucao;
+    return melhor_solucao;
 }
 
 vector<char> Guloso::guloso_randomizado_reativo( Grafo* grafo, const vector<double>& alphas, mt19937& rng, int iteracoes, int bloco) {
@@ -97,7 +98,7 @@ vector<char> Guloso::guloso_randomizado_reativo( Grafo* grafo, const vector<doub
         double alpha = alphas[idx_alpha];
 
         // Executa o guloso randomizado normal
-        vector<char> solucao = Guloso::guloso_randomizado(grafo, alpha, rng);
+        vector<char> solucao = Guloso::guloso_randomizado(grafo, alpha, rng, 1);
 
         int custo = (int)solucao.size();
         if (custo > 0) {

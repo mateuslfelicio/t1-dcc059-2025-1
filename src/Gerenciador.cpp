@@ -306,7 +306,10 @@ void Gerenciador::comandos(Grafo* grafo) {
 
         case 'i' : {
             vector<char> guloso;
-            double soma = 0;
+            double somaT = 0;
+            double somaC = 0;
+            int melhor = 0;
+
             for(int i = 0; i < 10; i++){
                 auto inicio = std::chrono::high_resolution_clock::now(); // Inicia o timer
 
@@ -315,7 +318,12 @@ void Gerenciador::comandos(Grafo* grafo) {
                 auto fim = std::chrono::high_resolution_clock::now(); // Finaliza o timer
                 auto duracao = std::chrono::duration_cast<std::chrono::milliseconds>(fim - inicio).count();
                 cout << "Tempo de execução (" << i+1 << "): " << duracao << " milissegundos" << endl; // Exibe
-                soma += duracao;
+                somaT += duracao;
+                somaC += guloso.size();
+
+                if(guloso.size() < melhor || melhor == 0) {
+                    melhor = guloso.size();
+                }
 
                 if(guloso.empty()) {
                     cout << "Guloso vazio." << endl;
@@ -324,7 +332,9 @@ void Gerenciador::comandos(Grafo* grafo) {
                     print_vector(guloso);
                 }
             }
-            cout << "Media dos tempos: " << (soma / 10) << " milissegundos" << endl; // Media
+            cout << "Melhor tamanho de execução : " << melhor << endl;
+            cout << "Media dos custos: " << (somaC / 10) << " milissegundos" << endl;
+            cout << "Media dos tempos: " << (somaT / 10) << " milissegundos" << endl; // Media
 
             if(pergunta_imprimir_arquivo("guloso.txt")) {
                 fstream arquivo;
@@ -362,32 +372,37 @@ void Gerenciador::comandos(Grafo* grafo) {
             mt19937 rng(random_device{}());
 
             vector<char> guloso_randomizado;
-            double soma = 0;
-            double melhor = 0;
-            for(int i =0; i<10; i++){
-                for(int j = 0; j < 30; j++) {
-                    auto inicio = std::chrono::high_resolution_clock::now(); // Inicia o timer
-                    
-                    guloso_randomizado = Guloso::guloso_randomizado(grafo, alpha, rng);
-                    
-                    auto fim = std::chrono::high_resolution_clock::now(); // Finaliza o timer
-                    auto duracao = std::chrono::duration_cast<std::chrono::milliseconds>(fim - inicio).count();
-                    
+            double somaT = 0;
+            double somaC = 0;
+            int melhor = 0;
+            int interacoes = 30;
 
-                    if(duracao < melhor || melhor == 0){
-                        melhor = duracao;
-                    }
-                    if(guloso_randomizado.empty()) {
-                        cout << "Solução vazia." << endl;
-                    }
-                    else {
-                        print_vector(guloso_randomizado);
-                    }
+            for(int i =0; i<10; i++){
+                auto inicio = std::chrono::high_resolution_clock::now(); // Inicia o timer
+                
+                guloso_randomizado = Guloso::guloso_randomizado(grafo, alpha, rng, interacoes);
+                
+                auto fim = std::chrono::high_resolution_clock::now(); // Finaliza o timer
+                auto duracao = std::chrono::duration_cast<std::chrono::milliseconds>(fim - inicio).count();
+
+
+                if(guloso_randomizado.empty()) {
+                    cout << "Solução vazia." << endl;
                 }
-                cout << "Melhor tempo de execução : " << melhor << " milissegundos" << endl; // Exibe
-                soma += melhor;
+                else {
+                    print_vector(guloso_randomizado);
+                }
+
+                somaT += duracao;
+                somaC += guloso_randomizado.size(); // soma dos custos
+
+                if(guloso_randomizado.size() < melhor || melhor == 0) {
+                    melhor = guloso_randomizado.size();
+                }
             }
-            cout << "Media dos melhores tempos: " << (soma / 10) << " milissegundos" << endl; // Media
+            cout << "Melhor tamanho de execução : " << melhor << endl;
+            cout << "Media dos melhores tamanhos: " << (somaC / 10)<< endl;
+            cout << "Media dos tempos: " << (somaT / 10) << " milissegundos" << endl;
 
             if(pergunta_imprimir_arquivo("guloso_randomizado.txt")) {
                 fstream arquivo;
@@ -416,16 +431,25 @@ void Gerenciador::comandos(Grafo* grafo) {
             mt19937 rng(random_device{}());
             vector<char> guloso_randomizado_reativo;
 
-            double soma = 0;
+            double somaT = 0;
+            double somaC = 0;
+            int melhor = 0;
+
             for(int i=0; i<10; i++){
                 auto inicio = std::chrono::high_resolution_clock::now(); // Inicia o timer
                 
                 guloso_randomizado_reativo = Guloso::guloso_randomizado_reativo(grafo, alphas, rng, iteracoes, bloco);
-                
+
                 auto fim = std::chrono::high_resolution_clock::now(); // Finaliza o timer
                 auto duracao = std::chrono::duration_cast<std::chrono::milliseconds>(fim - inicio).count();
-                cout << "Tempo de execução: " << duracao << " milissegundos" << endl;
-                soma += duracao;
+
+                somaT += duracao;
+                somaC += guloso_randomizado_reativo.size(); // soma dos custos
+
+                if(guloso_randomizado_reativo.size() < melhor || melhor == 0) {
+                    melhor = guloso_randomizado_reativo.size();
+                }
+
                 if(guloso_randomizado_reativo.empty()) {
                     cout << "Solução vazia." << endl;
                 }
@@ -433,7 +457,9 @@ void Gerenciador::comandos(Grafo* grafo) {
                     print_vector(guloso_randomizado_reativo);
                 }
             }
-            cout << "Média dos tempos: " << (soma / 10) << " milissegundos" << endl;
+            cout << "Melhor tamanho de execução : " << melhor << endl;
+            cout << "Media dos melhores tamanhos: " << (somaC / 10) << endl;
+            cout << "Média dos tempos: " << (somaT / 10) << " milissegundos" << endl;
             
             if(pergunta_imprimir_arquivo("guloso_randomizado_reativo.txt")) {
                 fstream arquivo;
