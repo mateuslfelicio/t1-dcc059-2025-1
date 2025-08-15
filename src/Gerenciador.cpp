@@ -1,6 +1,6 @@
 #include "Gerenciador.h"
 #include <fstream>
-
+#include <chrono>
 
 void Gerenciador::comandos(Grafo* grafo) {
     cout<<"Digite uma das opcoes abaixo e pressione enter:"<<endl<<endl;
@@ -12,6 +12,9 @@ void Gerenciador::comandos(Grafo* grafo) {
     cout<<"(f) Arvore Geradora Minima (Algoritmo de Kruskal);"<<endl;
     cout<<"(g) Arvore de caminhamento em profundidade;"<<endl;
     cout<<"(h) Raio, diametro, centro e periferia do grafo;"<<endl;
+    cout<<"(i) Guloso;"<<endl;
+    cout<<"(j) Guloso Randomizado;"<<endl;
+    cout<<"(k) Guloso Randomizado Reativo;"<<endl;
     cout<<"(0) Sair;"<<endl<<endl;
 
     char resp;
@@ -25,11 +28,7 @@ void Gerenciador::comandos(Grafo* grafo) {
             if(fecho_transitivo_direto.empty()) {
                 cout << "Fecho transitivo direto vazio." << endl << endl;
             } else {
-                for(size_t i = 0; i < fecho_transitivo_direto.size(); ++i) {
-                    cout << fecho_transitivo_direto[i];
-                    if(i != fecho_transitivo_direto.size() - 1)
-                        cout << ",";
-                }
+                print_vector(fecho_transitivo_direto);
                 cout << endl << endl;
             }
 
@@ -65,12 +64,7 @@ void Gerenciador::comandos(Grafo* grafo) {
             if(fecho_transitivo_indireto.empty()) {
                 cout << "Fecho transitivo indireto vazio." << endl << endl;
             } else {
-                for(size_t i = 0; i < fecho_transitivo_indireto.size(); ++i) {
-                    cout << fecho_transitivo_indireto[i];
-                    if(i != fecho_transitivo_indireto.size() - 1)
-                        cout << ",";
-                }
-                cout << endl << endl;
+                print_vector(fecho_transitivo_indireto);
             }
 
             if(pergunta_imprimir_arquivo("fecho_trans_indir.txt")) {
@@ -107,11 +101,7 @@ void Gerenciador::comandos(Grafo* grafo) {
                 break;
             }
 
-            for(size_t i = 0; i < caminho_minimo_dijkstra.size(); ++i) {
-                cout << caminho_minimo_dijkstra[i];
-                if(i != caminho_minimo_dijkstra.size() - 1)
-                    cout << ",";
-            }
+            print_vector(caminho_minimo_dijkstra);
             cout << endl << endl;
 
             if(pergunta_imprimir_arquivo("caminho_minimo_dijkstra.txt")) {
@@ -147,11 +137,7 @@ void Gerenciador::comandos(Grafo* grafo) {
                 break;
             }
             
-            for(size_t i = 0; i < caminho_minimo_floyd.size(); ++i) {
-                cout << caminho_minimo_floyd[i];
-                if(i != caminho_minimo_floyd.size() - 1)
-                    cout << ",";
-            }
+            print_vector(caminho_minimo_floyd);
             cout << endl << endl;
 
             if(pergunta_imprimir_arquivo("caminho_minimo_floyd.txt")) {
@@ -318,6 +304,184 @@ void Gerenciador::comandos(Grafo* grafo) {
             break;
         }
 
+        case 'i' : {
+            vector<char> guloso;
+            double somaT = 0;
+            double somaC = 0;
+            int melhor = 0;
+
+            for(int i = 0; i < 10; i++){
+                auto inicio = std::chrono::high_resolution_clock::now(); // Inicia o timer
+
+                guloso = Guloso::guloso(grafo);
+
+                auto fim = std::chrono::high_resolution_clock::now(); // Finaliza o timer
+                auto duracao = std::chrono::duration_cast<std::chrono::milliseconds>(fim - inicio).count();
+                cout << "Tempo de execução (" << i+1 << "): " << duracao << " milissegundos" << endl; // Exibe
+                somaT += duracao;
+                somaC += guloso.size();
+
+                if(guloso.size() < melhor || melhor == 0) {
+                    melhor = guloso.size();
+                }
+
+                if(guloso.empty()) {
+                    cout << "Guloso vazio." << endl;
+                }
+                else {
+                    print_vector(guloso);
+                }
+            }
+            cout << "Melhor tamanho de execução : " << melhor << endl;
+            cout << "Media dos custos: " << (somaC / 10) << " milissegundos" << endl;
+            cout << "Media dos tempos: " << (somaT / 10) << " milissegundos" << endl; // Media
+
+            if(pergunta_imprimir_arquivo("guloso.txt")) {
+                fstream arquivo;
+                    arquivo.open("./saida/guloso.txt", ios::out);
+                    if(!arquivo.is_open()) {
+                        cerr << "Erro ao abrir o arquivo: guloso.txt" << endl;
+                        break;
+                    }
+
+                    for(size_t i = 0; i < guloso.size(); ++i) {
+                        arquivo << guloso[i];
+                        if(i != guloso.size() - 1)
+                            arquivo << ",";
+                    }
+                    arquivo << endl;
+                    cout<< "Caminho mínimo gravado em guloso.txt" << endl;
+                    arquivo.close();
+            }
+            break;
+        }
+
+        case 'j' : {
+            vector<double> alphas = {0.05, 0.15, 0.50};
+            cout << "Escolha um valor de alpha:" << endl;
+            for (size_t i = 0; i < alphas.size(); ++i) {
+                cout << (i+1) << ") " << alphas[i] << endl;
+            }
+            int escolha = 0;
+            do {
+                cout << "Digite o numero correspondente ao alpha desejado: ";
+                cin >> escolha;
+            }while (escolha < 1 || escolha > (int)alphas.size());
+            double alpha = alphas[escolha-1];
+
+            mt19937 rng(random_device{}());
+
+            vector<char> guloso_randomizado;
+            double somaT = 0;
+            double somaC = 0;
+            int melhor = 0;
+            int interacoes = 30;
+
+            for(int i =0; i<10; i++){
+                auto inicio = std::chrono::high_resolution_clock::now(); // Inicia o timer
+                
+                guloso_randomizado = Guloso::guloso_randomizado(grafo, alpha, rng, interacoes);
+                
+                auto fim = std::chrono::high_resolution_clock::now(); // Finaliza o timer
+                auto duracao = std::chrono::duration_cast<std::chrono::milliseconds>(fim - inicio).count();
+
+
+                if(guloso_randomizado.empty()) {
+                    cout << "Solução vazia." << endl;
+                }
+                else {
+                    print_vector(guloso_randomizado);
+                }
+
+                somaT += duracao;
+                somaC += guloso_randomizado.size(); // soma dos custos
+
+                if(guloso_randomizado.size() < melhor || melhor == 0) {
+                    melhor = guloso_randomizado.size();
+                }
+            }
+            cout << "Melhor tamanho de execução : " << melhor << endl;
+            cout << "Media dos melhores tamanhos: " << (somaC / 10)<< endl;
+            cout << "Media dos tempos: " << (somaT / 10) << " milissegundos" << endl;
+
+            if(pergunta_imprimir_arquivo("guloso_randomizado.txt")) {
+                fstream arquivo;
+                    arquivo.open("./saida/guloso_randomizado.txt", ios::out);
+                    if(!arquivo.is_open()) {
+                        cerr << "Erro ao abrir o arquivo: guloso_randomizado.txt" << endl;
+                        break;
+                    }
+
+                    for(size_t i = 0; i < guloso_randomizado.size(); ++i) {
+                        arquivo << guloso_randomizado[i];
+                        if(i != guloso_randomizado.size() - 1)
+                            arquivo << ",";
+                    }
+                    arquivo << endl;
+                    cout<< "Caminho mínimo gravado em guloso_randomizado.txt" << endl;
+                    arquivo.close();
+            }
+            break;
+        }
+
+        case 'k' : {
+            vector<double> alphas = {0.05, 0.15, 0.50};
+            int iteracoes = 300;
+            int bloco = 40;
+            mt19937 rng(random_device{}());
+            vector<char> guloso_randomizado_reativo;
+
+            double somaT = 0;
+            double somaC = 0;
+            int melhor = 0;
+
+            for(int i=0; i<10; i++){
+                auto inicio = std::chrono::high_resolution_clock::now(); // Inicia o timer
+                
+                guloso_randomizado_reativo = Guloso::guloso_randomizado_reativo(grafo, alphas, rng, iteracoes, bloco);
+
+                auto fim = std::chrono::high_resolution_clock::now(); // Finaliza o timer
+                auto duracao = std::chrono::duration_cast<std::chrono::milliseconds>(fim - inicio).count();
+
+                somaT += duracao;
+                somaC += guloso_randomizado_reativo.size(); // soma dos custos
+
+                if(guloso_randomizado_reativo.size() < melhor || melhor == 0) {
+                    melhor = guloso_randomizado_reativo.size();
+                }
+
+                if(guloso_randomizado_reativo.empty()) {
+                    cout << "Solução vazia." << endl;
+                }
+                else {
+                    print_vector(guloso_randomizado_reativo);
+                }
+            }
+            cout << "Melhor tamanho de execução : " << melhor << endl;
+            cout << "Media dos melhores tamanhos: " << (somaC / 10) << endl;
+            cout << "Média dos tempos: " << (somaT / 10) << " milissegundos" << endl;
+            
+            if(pergunta_imprimir_arquivo("guloso_randomizado_reativo.txt")) {
+                fstream arquivo;
+                    arquivo.open("./saida/guloso_randomizado_reativo.txt", ios::out);
+                    if(!arquivo.is_open()) {
+                        cerr << "Erro ao abrir o arquivo: guloso_randomizado_reativo.txt" << endl;
+                        break;
+                    }
+
+                    for(size_t i = 0; i < guloso_randomizado_reativo.size(); ++i) {
+                        arquivo << guloso_randomizado_reativo[i];
+                        if(i != guloso_randomizado_reativo.size() - 1)
+                            arquivo << ",";
+                    }
+                    arquivo << endl;
+                    cout<< "Caminho mínimo gravado em guloso_randomizado_reativo.txt" << endl;
+                    arquivo.close();
+            }
+            break;
+        }
+
+
         case '0': {
             exit(0);
         }
@@ -364,6 +528,15 @@ vector<char> Gerenciador::get_conjunto_ids(Grafo *grafo, int tam) {
     }
 
     return ids;
+}
+
+void Gerenciador::print_vector(vector<char> vetor) {
+    for(size_t i = 0; i < vetor.size(); ++i) {
+        cout << vetor[i];
+        if(i != vetor.size() - 1)
+            cout << ",";
+    }
+    cout << endl << endl;
 }
 
 

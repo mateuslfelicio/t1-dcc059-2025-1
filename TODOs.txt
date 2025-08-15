@@ -1,0 +1,6 @@
+Implementar os métodos para:
+    * Heuristica
+    * Guloso
+    * Guloso randomizado
+    * Guloso randomizado reativo
+    * Verificação da solução
