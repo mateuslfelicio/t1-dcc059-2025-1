@@ -1,0 +1,40 @@
+Compilação:
+Mesma utilizada durante o T1
+
+g++ *.cpp -o execGrupo2
+
+./execGrupo2 <arquivo_entrada>
+
+opção i: algoritmo guloso
+retorno
+solução encontrada x10
+melhor tempo de execução
+média dos tempos de execução
+média dos resultados
+
+impressão em arquivo (guloso.txt)
+grava o melhor resultado obtido na execução
+
+opção j: algoritmo guloso randomizado
+parametro alfa, selecione:
+1 para alfa = 0.05
+2 para alfa = 0.15
+3 para alfa = 0.5
+retorno
+solução encontrada x10 (30 chamadas do construtivo do randomizado para cada iteração)
+melhor tempo de execução
+média dos tempos de execução
+média dos resultados
+
+impressão em arquivo (guloso_randomizado.txt)
+grava o melhor resultado obtido na execução
+
+opção i: algoritmo guloso randomizado
+retorno
+solução encontrada x10 (300 iterações, blocos de tamanho 40)
+melhor tempo de execução
+média dos tempos de execução
+média dos resultados
+
+impressão em arquivo (guloso_randomizado_reativo.txt)
+grava o melhor resultado obtido na execução
